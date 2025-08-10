@@ -3,137 +3,134 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ultimate Notion Widget</title>
+<title>Ultimate Study Widget</title>
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  rel="stylesheet"
+/>
 <style>
   :root {
-    --title-color: #AD1A72;
-    --text-color: #AD1A72;
-    --outline-color: rgba(173, 26, 114, 0.15);
-    --background-color-light: #fff;
-    --background-color-dark: #1b1b1b;
-    --background-blur: rgba(255 255 255 / 0.1);
-    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --bg-dark: #1a1a1a;
+    --bg-light: #fefefe;
+    --text-dark: #fcf1f6;
+    --text-light: #1a1a1a;
+    --title-dark: #ad1a72;
+    --title-light: #ad1a72;
+    --outline-dark: rgba(255 255 255 / 0.12);
+    --outline-light: rgba(0 0 0 / 0.12);
+    --input-bg-dark: #222;
+    --input-bg-light: #eee;
   }
 
   html, body {
-    margin: 0; padding: 0; height: 100%; width: 100%;
-    font-family: var(--font-family);
-    background: var(--background-color-light);
-    color: var(--text-color);
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
-    overflow: hidden;
   }
 
-  body.dark {
-    background: var(--background-color-dark);
-    color: var(--text-color);
+  body[data-theme='dark'] {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+  }
+  body[data-theme='light'] {
+    background: var(--bg-light);
+    color: var(--text-light);
   }
 
-  #app {
-    height: 100vh;
-    width: 100vw;
+  header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--outline-dark);
+    background-color: inherit;
+  }
+  body[data-theme='light'] header {
+    border-color: var(--outline-light);
+  }
+  header h1 {
+    font-weight: 900;
+    font-size: 1.6rem;
+    color: var(--title-dark);
+    margin: 0;
+  }
+  #theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--title-dark);
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  #icon-sun, #icon-moon {
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    margin: auto;
+    transition: opacity 0.3s ease;
+  }
+  body[data-theme='dark'] #icon-sun {
+    opacity: 0;
+  }
+  body[data-theme='light'] #icon-moon {
+    opacity: 0;
+  }
+
+  nav#tabs {
+    display: flex;
+    background: inherit;
+    border-bottom: 1px solid var(--outline-dark);
+  }
+  body[data-theme='light'] nav#tabs {
+    border-color: var(--outline-light);
+  }
+  nav#tabs button {
+    flex: 1 1 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0.75rem 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--title-dark);
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  nav#tabs button[aria-selected="true"] {
+    border-color: var(--title-dark);
+    font-weight: 900;
+    background-color: rgba(173, 26, 114, 0.12);
+  }
+  nav#tabs button:hover:not([aria-selected="true"]) {
+    background-color: rgba(173, 26, 114, 0.08);
+  }
+
+  main {
+    height: calc(100vh - 104px);
+    overflow-y: auto;
+    padding: 1rem 1.5rem 2rem 1.5rem;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     position: relative;
-    overflow: hidden;
   }
 
-  /* Background reposition container */
-  #bg-reposition-container {
-    display: none;
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
+  /* Transparent blurred rectangle container */
+  .blurred-outline {
+    background: rgba(255 255 255 / 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--outline-dark);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
   }
-  #bg-reposition-img {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    cursor: grab;
-    user-select: none;
-  }
-  #bg-reposition-controls {
-    margin-top: 10px;
-    text-align: center;
-  }
-  #bg-reposition-controls button {
-    margin: 0 8px;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    background: var(--title-color);
-    color: white;
-    user-select: none;
-    transition: background-color 0.3s ease;
-  }
-  #bg-reposition-controls button:hover {
-    background: #a0145c;
+  body[data-theme='light'] .blurred-outline {
+    background: rgba(0 0 0 / 0.04);
+    border-color: var(--outline-light);
   }
 
-  /* Tabs bar container */
-  #tabs-bar {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    background-color: var(--outline-color);
-    border-bottom: 1px solid var(--title-color);
-    padding: 0.5rem 0;
-    scrollbar-width: thin;
-    z-index: 10;
-  }
-  #tabs-bar::-webkit-scrollbar {
-    height: 6px;
-  }
-  #tabs-bar::-webkit-scrollbar-thumb {
-    background-color: #AD1A72;
-    border-radius: 3px;
-  }
-  #tabs-bar button {
-    flex: 0 0 auto;
-    background: none;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    color: var(--title-color);
-    font-weight: 700;
-    font-size: 1rem;
-    user-select: none;
-    border-bottom: 3px solid transparent;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: border-color 0.3s;
-  }
-  #tabs-bar button.active {
-    border-color: #F472B6;
-  }
-  #tabs-bar button:hover {
-    background-color: var(--outline-color);
-  }
-
-  /* Tab content container */
-  #tab-content-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem 1.5rem;
-    box-sizing: border-box;
-    min-height: 0;
-    position: relative;
-    background: var(--background-blur);
-    backdrop-filter: blur(6px);
-    border-radius: 10px;
-    margin: 0.5rem 1rem 1rem 1rem;
-  }
-
-  /* Tab panels */
   section[role="tabpanel"] {
     display: none;
   }
@@ -141,1624 +138,1598 @@
     display: block;
   }
 
-  /* Common button style */
-  button {
-    font-family: var(--font-family);
-  }
-
-  /* Inputs as chat bubbles */
-  input[type=text], textarea {
-    width: 100%;
-    max-width: 100%;
-    padding: 0.6rem 1rem;
-    border-radius: 20px;
-    border: 1.8px solid var(--outline-color);
-    background: rgba(255 255 255 / 0.2);
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.07);
-    color: var(--text-color);
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s ease, background 0.3s ease;
-    font-weight: 600;
-    user-select: text;
-  }
-  input[type=text]:focus, textarea:focus {
-    border-color: var(--title-color);
-    background: rgba(255 255 255 / 0.4);
-    box-shadow: inset 0 0 8px var(--title-color);
-  }
-
-  /* Scrollbar for tab content */
-  #tab-content-container::-webkit-scrollbar {
-    width: 10px;
-  }
-  #tab-content-container::-webkit-scrollbar-thumb {
-    background-color: var(--outline-color);
-    border-radius: 5px;
-  }
-
-  /* To Do List Styles */
+  /* To-Do List styles */
   #todo-list {
     list-style: none;
+    margin: 0 0 0.5rem 0;
     padding: 0;
-    margin: 0 0 1rem 0;
-    max-height: 300px;
+    max-height: 350px;
     overflow-y: auto;
   }
   #todo-list li {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: rgba(255 255 255 / 0.12);
-    margin-bottom: 6px;
-    padding: 8px 12px;
-    border-radius: 16px;
-    cursor: grab;
-    user-select: none;
-    font-weight: 600;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--outline-dark);
+    position: relative;
   }
-  #todo-list li.subtask {
-    margin-left: 24px;
-    font-style: italic;
-    opacity: 0.85;
-    font-weight: 500;
+  body[data-theme='light'] #todo-list li {
+    border-color: var(--outline-light);
   }
-  #todo-list li.completed {
-    text-decoration: line-through;
+  #todo-list li.todo-item.dragging {
     opacity: 0.5;
   }
-  #todo-list li .bullet {
-    flex-shrink: 0;
-    cursor: pointer;
-    font-size: 1.3rem;
-    user-select: none;
-    color: var(--title-color);
-    transition: color 0.3s;
-  }
-  #todo-list li .bullet.filled {
-    color: #F472B6;
-  }
-  #todo-list li:hover .remove-btn {
-    opacity: 1;
-  }
-  .remove-btn {
-    background: none;
+
+  /* Bullet buttons */
+  .bullet {
     border: none;
-    font-size: 1.4rem;
-    color: #ee5c8d;
+    background: none;
     cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s;
-    user-select: none;
+    margin-right: 0.5rem;
+    font-size: 1.3rem;
+    color: var(--title-dark);
+    flex-shrink: 0;
+  }
+  .bullet:hover {
+    color: #ff69b4;
   }
 
-  /* To Do input container with icon toggle */
+  /* Filled and outline hearts/stars */
+  .heart-outline { color: var(--title-dark); }
+  .heart-fill { color: #e91e63; }
+  .star-outline { color: var(--title-dark); }
+  .star-fill { color: #e91e63; }
+
+  /* Task text */
+  .todo-text {
+    flex-grow: 1;
+    outline: none;
+    font-size: 1.1rem;
+    word-break: break-word;
+    padding: 0.1rem 0.2rem;
+    min-height: 1.3rem;
+  }
+  .todo-text.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  /* Due date */
+  .due-date {
+    margin-left: 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--title-dark);
+    user-select: none;
+  }
+  .due-date.placeholder {
+    opacity: 0.3;
+    font-style: italic;
+  }
+  .due-date:hover {
+    text-decoration: underline;
+  }
+
+  /* Remove task button */
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--title-dark);
+    cursor: pointer;
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .close-btn:hover {
+    color: #ff4081;
+  }
+
+  /* Input container */
   #todo-input-container {
     display: flex;
     align-items: center;
-    gap: 10px;
     margin-top: 0.5rem;
   }
-  #todo-input-container button#task-type-toggle {
-    border-radius: 50%;
-    border: none;
-    background: var(--outline-color);
-    width: 38px;
-    height: 38px;
-    cursor: pointer;
-    font-size: 1.4rem;
-    color: var(--title-color);
-    transition: background-color 0.3s ease;
+  #todo-input {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--outline-dark);
+    background-color: var(--input-bg-dark);
+    color: var(--text-dark);
+    transition: border-color 0.3s ease;
+    user-select: text;
   }
-  #todo-input-container button#task-type-toggle:hover {
-    background-color: #f4b0d2;
+  body[data-theme='light'] #todo-input {
+    border-color: var(--outline-light);
+    background-color: var(--input-bg-light);
+    color: var(--text-light);
+  }
+  #todo-input:focus {
+    border-color: #ad1a72;
+    outline: none;
   }
 
-  /* Music Interface */
-  #music-now-playing {
-    display: flex;
-    align-items: center;
-    background: rgba(255 255 255 / 0.2);
-    padding: 8px 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    user-select: none;
-    font-weight: 600;
-  }
-  #music-now-playing img.cover-art {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-right: 12px;
-    box-shadow: 0 0 8px rgba(173, 26, 114, 0.8);
-  }
-  #music-now-playing .info {
-    flex-grow: 1;
-  }
-  #music-now-playing .title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  #music-now-playing .duration {
-    font-size: 0.9rem;
-    opacity: 0.7;
-  }
-  #music-now-playing .progress-container {
-    position: relative;
-    width: 100%;
-    margin-top: 6px;
-  }
-  #music-now-playing input[type=range] {
-    width: 100%;
-    -webkit-appearance: none;
-    height: 6px;
-    border-radius: 5px;
-    background: var(--outline-color);
-    cursor: pointer;
-  }
-  #music-now-playing input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    background: var(--title-color);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 0 6px #AD1A72aa;
-  }
-  #music-controls {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 8px;
-  }
-  #music-controls button {
-    border: none;
+  #todo-toggle-subtask {
+    margin-right: 0.75rem;
     background: none;
+    border: none;
     cursor: pointer;
     font-size: 1.5rem;
-    color: var(--title-color);
-    user-select: none;
-    transition: color 0.25s ease;
-  }
-  #music-controls button:hover {
-    color: #F472B6;
-  }
-
-  /* Music Library */
-  #music-library {
-    max-height: 280px;
-    overflow-y: auto;
-    border-radius: 12px;
-    background: rgba(255 255 255 / 0.12);
-    padding: 10px;
-    font-weight: 600;
-    color: var(--title-color);
-  }
-  #music-library ul {
-    list-style: none;
-    margin: 0; padding: 0;
-  }
-  #music-library li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 10px;
-    border-radius: 14px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.25s ease;
-  }
-  #music-library li:hover {
-    background: #F472B633;
-  }
-  #music-library li .song-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  #music-library li .song-info img {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    object-fit: cover;
-    box-shadow: 0 0 8px rgba(173, 26, 114, 0.6);
-  }
-  #music-library li .song-info .name {
-    font-weight: 600;
-    color: var(--title-color);
-  }
-  #music-library li .queue-btn {
-    background: none;
-    border: none;
-    color: var(--title-color);
-    font-size: 1.2rem;
-    cursor: pointer;
-    user-select: none;
-    margin-left: 12px;
+    color: var(--title-dark);
     transition: color 0.3s ease;
   }
-  #music-library li .queue-btn:hover {
-    color: #F472B6;
+  #todo-toggle-subtask.active {
+    color: #e91e63;
   }
-  #music-library li .remove-btn {
+  #todo-toggle-subtask:hover {
+    color: #ff69b4;
+  }
+
+  /* Reset button */
+  .reset-btn {
+    margin-top: 1rem;
+    padding: 0.45rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--title-dark);
+    color: #fff;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  .reset-btn:hover {
+    background-color: #6f1351;
+  }
+
+  /* Countdown and timers container */
+  .timer-list, .countdown-list {
+    max-height: 320px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+
+  /* Countdown & Timers cards */
+  .timer-card, .countdown-card {
+    background: rgba(255 255 255 / 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--outline-dark);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    position: relative;
+  }
+  body[data-theme='light'] .timer-card, body[data-theme='light'] .countdown-card {
+    background: rgba(0 0 0 / 0.04);
+    border-color: var(--outline-light);
+  }
+  .timer-card > *, .countdown-card > * {
+    margin: 0.15rem 0;
+  }
+
+  /* Titles editable */
+  .editable-title {
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: var(--title-dark);
+    user-select: text;
+    outline: none;
+  }
+
+  /* Countdown timer text */
+  .countdown-time {
+    font-size: 1.6rem;
+    font-weight: 900;
+    font-family: monospace, monospace;
+    color: var(--text-dark);
+    user-select: none;
+  }
+  body[data-theme='light'] .countdown-time {
+    color: var(--text-light);
+  }
+
+  /* Control buttons for timers/countdowns */
+  .timer-controls button,
+  .countdown-controls button {
     background: none;
     border: none;
-    color: #ee5c8d;
-    font-size: 1.4rem;
+    color: var(--title-dark);
     cursor: pointer;
-    user-select: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    margin-left: 12px;
+    font-size: 1.25rem;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
   }
-  #music-library li:hover .remove-btn {
-    opacity: 1;
+  .timer-controls button:hover,
+  .countdown-controls button:hover {
+    color: #e91e63;
   }
 
-  /* Queue pane */
-  #music-queue-container {
-    margin-top: 10px;
-    max-height: 180px;
-    overflow-y: auto;
-    background: rgba(255 255 255 / 0.12);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-weight: 600;
-    color: var(--title-color);
+  /* Close button for timers/countdowns */
+  .close-btn-timer {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.6rem;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--title-dark);
+    background: none;
+    border: none;
   }
-  #music-queue-container.hidden {
-    display: none;
+  .close-btn-timer:hover {
+    color: #ff4081;
   }
-  #music-queue-container ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+
+  /* Input for date/time */
+  input[type="date"],
+  input[type="time"] {
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--outline-dark);
+    background-color: var(--input-bg-dark);
+    color: var(--text-dark);
+    font-size: 1rem;
   }
-  #music-queue-container li {
+  body[data-theme='light'] input[type="date"],
+  body[data-theme='light'] input[type="time"] {
+    border-color: var(--outline-light);
+    background-color: var(--input-bg-light);
+    color: var(--text-light);
+  }
+  input[type="date"]:focus,
+  input[type="time"]:focus {
+    outline: none;
+    border-color: #ad1a72;
+  }
+
+  /* Pomodoro */
+  #pomodoro-display {
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: monospace, monospace;
+    text-align: center;
+    margin: 2rem 0 1rem 0;
+    color: var(--text-dark);
+  }
+  body[data-theme='light'] #pomodoro-display {
+    color: var(--text-light);
+  }
+  #pomodoro-controls {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 8px;
-    border-radius: 12px;
-    cursor: grab;
-    user-select: none;
-    transition: background-color 0.3s;
+    justify-content: center;
+    gap: 1rem;
   }
-  #music-queue-container li:hover {
-    background: #F472B633;
-  }
-  #music-queue-container li .remove-btn {
-    font-size: 1.2rem;
-    color: #ee5c8d;
+  #pomodoro-controls button {
+    background: none;
+    border: 2px solid var(--title-dark);
+    border-radius: 50%;
+    color: var(--title-dark);
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    user-select: none;
-    margin-left: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: background-color 0.3s ease;
   }
-  #music-queue-container li:hover .remove-btn {
-    opacity: 1;
+  #pomodoro-controls button:hover {
+    background-color: #ff69b4;
+    color: white;
   }
 
-  /* AI Chat */
-  #ai-chat-container {
+  /* Stopwatch */
+  #stopwatch-display {
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: monospace, monospace;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+  }
+  body[data-theme='light'] #stopwatch-display {
+    color: var(--text-light);
+  }
+  #stopwatch-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  #stopwatch-controls button {
+    background: none;
+    border: 2px solid var(--title-dark);
+    border-radius: 8px;
+    color: var(--title-dark);
+    padding: 0.4rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #stopwatch-controls button:hover {
+    background-color: #ff69b4;
+    color: white;
+  }
+
+  #punches-list {
+    max-height: 160px;
+    overflow-y: auto;
+    background: rgba(255 255 255 / 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--outline-dark);
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-family: monospace, monospace;
+    color: var(--text-dark);
+  }
+  body[data-theme='light'] #punches-list {
+    background: rgba(0 0 0 / 0.04);
+    border-color: var(--outline-light);
+    color: var(--text-light);
+  }
+  #punches-list li {
+    margin-bottom: 0.3rem;
+  }
+
+  /* Settings tab */
+  #settings form {
+    max-width: 460px;
+    margin: auto;
+  }
+  #settings label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 700;
+    color: var(--title-dark);
+  }
+  #settings input[type="color"],
+  #settings input[type="text"] {
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--outline-dark);
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  body[data-theme='light'] #settings input[type="color"],
+  body[data-theme='light'] #settings input[type="text"] {
+    border-color: var(--outline-light);
+  }
+  #settings button {
+    margin-top: 1rem;
+    background-color: var(--title-dark);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #settings button:hover {
+    background-color: #6f1351;
+  }
+  #settings small {
+    font-style: italic;
+    color: var(--text-dark);
+  }
+  body[data-theme='light'] #settings small {
+    color: var(--text-light);
+  }
+
+  /* Background reposition */
+  #bg-reposition-container {
+    margin-top: 1rem;
+    position: relative;
+    border: 1px solid var(--outline-dark);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 100%;
+    height: 180px;
+  }
+  body[data-theme='light'] #bg-reposition-container {
+    border-color: var(--outline-light);
+  }
+  #bg-reposition-image {
+    position: absolute;
+    top: 0; left: 0;
+    user-select: none;
+    cursor: grab;
+    max-width: none;
+  }
+  #bg-reposition-image.dragging {
+    cursor: grabbing;
+  }
+  #bg-reposition-controls {
+    margin-top: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  #bg-reposition-controls button {
+    padding: 0.3rem 0.7rem;
+    border: none;
+    background: var(--title-dark);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #bg-reposition-controls button:hover {
+    background: #6f1351;
+  }
+
+  /* Chat AI */
+  #chat-container {
+    max-width: 700px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 500px;
   }
-  #ai-messages {
+  #chat-messages {
     flex-grow: 1;
     overflow-y: auto;
-    background: rgba(255 255 255 / 0.15);
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 8px;
-    color: var(--text-color);
-    font-weight: 600;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255 255 255 / 0.1);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
   }
-  .ai-message {
-    margin-bottom: 12px;
-    padding: 8px 14px;
-    border-radius: 20px;
+  body[data-theme='light'] #chat-messages {
+    background: rgba(0 0 0 / 0.04);
+    color: var(--text-light);
+  }
+  .chat-message {
+    margin-bottom: 1rem;
+  }
+  .chat-message.user {
+    text-align: right;
+  }
+  .chat-message.user .msg-text {
+    display: inline-block;
+    background: #e91e63;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px 12px 0 12px;
     max-width: 70%;
     word-wrap: break-word;
   }
-  .ai-message.user {
-    background: #F472B6;
-    color: white;
-    margin-left: auto;
-  }
-  .ai-message.bot {
-    background: var(--outline-color);
-    color: var(--title-color);
-  }
-  #ai-input-container {
-    display: flex;
-    gap: 8px;
-  }
-  #ai-input {
-    flex-grow: 1;
-    border-radius: 20px;
-    border: 1.5px solid var(--outline-color);
-    padding: 0.7rem 1rem;
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--text-color);
-    background: rgba(255 255 255 / 0.15);
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  #ai-input:focus {
-    border-color: var(--title-color);
-  }
-  #ai-send-btn {
-    background: var(--title-color);
-    border: none;
-    color: white;
-    padding: 0 18px;
-    font-weight: 700;
-    border-radius: 20px;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
-  }
-  #ai-send-btn:disabled {
-    background: #e3a9be;
-    cursor: default;
-  }
-  #ai-send-btn:hover:not(:disabled) {
-    background: #9d125b;
-  }
-
-  /* Games */
-  #games-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    justify-content: center;
-  }
-  .game-card {
-    width: 120px;
-    height: 120px;
-    border-radius: 14px;
-    background: rgba(173, 26, 114, 0.15);
-    color: var(--title-color);
-    font-weight: 600;
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.3s ease;
-    padding: 8px;
-  }
-  .game-card:hover {
-    background: #F472B6;
-    color: white;
-  }
-  #game-container {
-    margin-top: 12px;
-    border-radius: 12px;
-    background: rgba(255 255 255 / 0.12);
-    padding: 12px;
-    min-height: 200px;
-    user-select: none;
-    color: var(--title-color);
-  }
-  #game-back-btn {
-    margin-top: 10px;
-    padding: 6px 14px;
-    font-weight: 700;
-    border: none;
-    border-radius: 12px;
-    background: var(--title-color);
-    color: white;
-    cursor: pointer;
-    user-select: none;
-    display: none;
-  }
-  #game-back-btn:hover {
-    background: #9d125b;
-  }
-
-  /* Settings */
-  #settings-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  #settings-panel label {
-    font-weight: 700;
-    color: var(--title-color);
-  }
-  #settings-panel input[type=text], #settings-panel input[type=color], #settings-panel select {
-    width: 100%;
-    padding: 0.4rem 0.8rem;
-    border-radius: 14px;
-    border: 1.5px solid var(--outline-color);
-    background: rgba(255 255 255 / 0.15);
-    color: var(--text-color);
-    font-weight: 600;
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  #settings-panel input[type=text]:focus, #settings-panel input[type=color]:focus, #settings-panel select:focus {
-    border-color: var(--title-color);
-  }
-  #settings-panel button {
-    margin-top: 0.5rem;
-    font-weight: 700;
-    padding: 0.5rem 1.2rem;
-    border-radius: 14px;
-    border: none;
-    background: var(--title-color);
-    color: white;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
-  }
-  #settings-panel button:hover {
-    background: #9d125b;
-  }
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-
-  /* Light/Dark toggle switch style */
-  .switch {
-    position: relative;
+  .chat-message.ai .msg-text {
     display: inline-block;
-    width: 50px;
-    height: 28px;
+    background: rgba(173, 26, 114, 0.8);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px 12px 12px 0;
+    max-width: 70%;
+    word-wrap: break-word;
   }
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    background-color: var(--outline-color);
-    border-radius: 24px;
-    transition: 0.4s;
-  }
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 4px;
-    background-color: var(--title-color);
-    border-radius: 50%;
-    transition: 0.4s;
-  }
-  input:checked + .slider {
-    background-color: #F472B6;
-  }
-  input:checked + .slider:before {
-    transform: translateX(22px);
-    background-color: #AD1A72;
-  }
-  .switch-labels {
+  #chat-input-container {
     display: flex;
-    justify-content: space-between;
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: var(--title-color);
-    margin-top: 4px;
-    user-select: none;
+    gap: 0.5rem;
   }
-
-  /* Hide file input */
-  input[type="file"] {
-    display: none;
+  #chat-input {
+    flex-grow: 1;
+    font-size: 1rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 12px;
+    border: 1px solid var(--outline-dark);
+    background-color: var(--input-bg-dark);
+    color: var(--text-dark);
   }
-
-  /* Overlay plus button for music upload */
-  #music-upload-btn {
-    position: fixed;
-    bottom: 14px;
-    left: 14px;
-    z-index: 20;
-    background: var(--title-color);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
+  body[data-theme='light'] #chat-input {
+    border-color: var(--outline-light);
+    background-color: var(--input-bg-light);
+    color: var(--text-light);
+  }
+  #chat-input:focus {
+    outline: none;
+    border-color: #ad1a72;
+  }
+  #chat-send-btn {
+    background: #ad1a72;
     border: none;
-    font-size: 2rem;
+    border-radius: 12px;
     color: white;
-    cursor: pointer;
-    box-shadow: 0 0 12px var(--title-color);
-    user-select: none;
-    transition: background-color 0.3s ease;
-  }
-  #music-upload-btn:hover {
-    background-color: #9d125b;
-  }
-
-  /* Hide Now Playing queue */
-  #queue-toggle-btn {
-    background: none;
-    border: none;
     font-weight: 700;
-    color: var(--title-color);
     cursor: pointer;
-    user-select: none;
-    margin-left: auto;
-    font-size: 1.1rem;
-    transition: color 0.3s ease;
+    padding: 0 1.2rem;
   }
-  #queue-toggle-btn:hover {
-    color: #F472B6;
+  #chat-send-btn:hover {
+    background: #6f1351;
   }
 
-  /* Focus mode button top left */
-  #focus-mode-btn {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 999;
-    background: var(--title-color);
-    border-radius: 18px;
-    width: 36px;
-    height: 36px;
-    border: none;
-    font-size: 1.5rem;
-    color: white;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
-  #focus-mode-btn:hover {
-    background: #9d125b;
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
-
-  /* Responsive fixes for tabs and content */
-  @media (max-width: 550px) {
-    #tabs-bar button {
-      font-size: 0.9rem;
-      padding: 0.4rem 0.8rem;
-    }
-    #music-now-playing img.cover-art {
-      width: 32px;
-      height: 32px;
-    }
+  ::-webkit-scrollbar-thumb {
+    background: #ad1a72;
+    border-radius: 8px;
   }
 
 </style>
 </head>
-<body>
-<div id="app" tabindex="0" aria-label="Ultimate Notion Widget">
-  <button id="focus-mode-btn" aria-label="Toggle focus mode">⛶</button>
-  <nav id="tabs-bar" role="tablist" aria-label="Widget Tabs">
-    <button role="tab" id="tab-todo" aria-selected="true" aria-controls="panel-todo" tabindex="0">📝 To-Do List</button>
-    <button role="tab" id="tab-timers" aria-selected="false" aria-controls="panel-timers" tabindex="-1">⏰ Timers</button>
-    <button role="tab" id="tab-pomodoro" aria-selected="false" aria-controls="panel-pomodoro" tabindex="-1">🎀 Pomodoro</button>
-    <button role="tab" id="tab-music" aria-selected="false" aria-controls="panel-music" tabindex="-1">🎵 Music</button>
-    <button role="tab" id="tab-ai" aria-selected="false" aria-controls="panel-ai" tabindex="-1">🤖 AI Chat</button>
-    <button role="tab" id="tab-games" aria-selected="false" aria-controls="panel-games" tabindex="-1">🎮 Games</button>
-    <button role="tab" id="tab-settings" aria-selected="false" aria-controls="panel-settings" tabindex="-1">⚙️ Settings</button>
-  </nav>
+<body data-theme="dark">
+<header>
+  <h1 contenteditable="true" id="app-title" aria-label="App Title">🎀 Countdown & Timers 🎀</h1>
+  <button id="theme-toggle" aria-label="Toggle Dark/Light Theme" title="Toggle Dark/Light Theme">
+    <i id="icon-sun" class="fas fa-sun"></i>
+    <i id="icon-moon" class="fas fa-moon"></i>
+  </button>
+</header>
+<nav id="tabs" role="tablist" aria-label="Main Sections">
+  <button role="tab" id="tab-todo" aria-controls="panel-todo" aria-selected="true">📝 To-Do</button>
+  <button role="tab" id="tab-countdown" aria-controls="panel-countdown" aria-selected="false">⏳ Countdown</button>
+  <button role="tab" id="tab-timers" aria-controls="panel-timers" aria-selected="false">⏲️ Timers</button>
+  <button role="tab" id="tab-stopwatch" aria-controls="panel-stopwatch" aria-selected="false">⏱️ Stopwatch</button>
+  <button role="tab" id="tab-pomodoro" aria-controls="panel-pomodoro" aria-selected="false">🍅 Pomodoro</button>
+  <button role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="false">⚙️ Settings</button>
+  <button role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="false">🤖 Chat AI</button>
+</nav>
+<main>
+  <!-- To-Do Tab -->
+  <section role="tabpanel" id="panel-todo" tabindex="0" class="active" aria-labelledby="tab-todo">
+    <ul id="todo-list" aria-live="polite" aria-label="To-do list"></ul>
+    <div id="todo-input-container">
+      <button id="todo-toggle-subtask" aria-label="Toggle subtask mode" title="Toggle subtask mode" aria-pressed="false">
+        <i class="far fa-heart"></i>
+      </button>
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="Type a task and press Enter"
+        aria-label="Task input"
+        autocomplete="off"
+      />
+    </div>
+    <button id="todo-clear" class="reset-btn" aria-label="Clear all tasks">Clear All Tasks</button>
+  </section>
 
-  <div id="tab-content-container">
-    <!-- To-Do List -->
-    <section role="tabpanel" id="panel-todo" aria-labelledby="tab-todo" class="active">
-      <ul id="todo-list" aria-live="polite" aria-relevant="additions removals"></ul>
-      <div id="todo-input-container">
-        <button id="task-type-toggle" title="Toggle Task Type" aria-label="Toggle between main task and subtask">❤️</button>
-        <input type="text" id="todo-input" placeholder="Add a task and press Enter..." aria-label="Add a new task" autocomplete="off" />
-      </div>
-      <button id="clear-tasks-btn" aria-label="Clear all tasks">Clear All Tasks</button>
-    </section>
+  <!-- Countdown Tab -->
+  <section role="tabpanel" id="panel-countdown" tabindex="0" aria-labelledby="tab-countdown" >
+    <div class="blurred-outline">
+      <label for="countdown-title-input" style="font-weight:700; color: var(--title-dark)">Countdown Title:</label>
+      <input type="text" id="countdown-title-input" placeholder="🎀 Countdown 🎀" />
+    </div>
+    <div id="countdown-list" class="countdown-list" aria-live="polite"></div>
+    <button id="countdown-add" class="reset-btn" aria-label="Add new countdown">Add Countdown</button>
+    <button id="countdown-clear" class="reset-btn" aria-label="Clear all countdowns">Clear All Countdowns</button>
+  </section>
 
-    <!-- Timers -->
-    <section role="tabpanel" id="panel-timers" aria-labelledby="tab-timers">
-      <div id="timers-container"></div>
-      <button id="add-timer-btn">+ Add Timer</button>
-      <button id="clear-timers-btn">Reset All Timers</button>
-    </section>
+  <!-- Timers Tab -->
+  <section role="tabpanel" id="panel-timers" tabindex="0" aria-labelledby="tab-timers">
+    <div class="blurred-outline">
+      <label for="timers-title-input" style="font-weight:700; color: var(--title-dark)">Timers Title:</label>
+      <input type="text" id="timers-title-input" placeholder="⏲️ Timers" />
+    </div>
+    <div id="timer-list" class="timer-list" aria-live="polite"></div>
+    <button id="timer-add" class="reset-btn" aria-label="Add new timer">Add Timer</button>
+    <button id="timer-clear" class="reset-btn" aria-label="Clear all timers">Clear All Timers</button>
+  </section>
 
-    <!-- Pomodoro -->
-    <section role="tabpanel" id="panel-pomodoro" aria-labelledby="tab-pomodoro">
-      <div id="pomodoro-timer">
-        <h3>Pomodoro Timer</h3>
-        <div id="pomodoro-display">25:00</div>
-        <button id="pomodoro-start">Start</button>
-        <button id="pomodoro-pause">Pause</button>
-        <button id="pomodoro-reset">Reset</button>
-      </div>
-    </section>
+  <!-- Stopwatch Tab -->
+  <section role="tabpanel" id="panel-stopwatch" tabindex="0" aria-labelledby="tab-stopwatch">
+    <div id="stopwatch-display" aria-live="polite" aria-atomic="true">00:00:00.00</div>
+    <div id="stopwatch-controls">
+      <button id="stopwatch-start">Start</button>
+      <button id="stopwatch-pause">Pause</button>
+      <button id="stopwatch-reset">Reset</button>
+      <button id="stopwatch-punch">Punch</button>
+    </div>
+    <ul id="punches-list" aria-live="polite" aria-label="Stopwatch punches"></ul>
+  </section>
 
-    <!-- Music -->
-    <section role="tabpanel" id="panel-music" aria-labelledby="tab-music">
-      <div id="music-now-playing" aria-live="polite" aria-atomic="true">
-        <img class="cover-art" src="" alt="Cover Art" />
-        <div class="info">
-          <div class="title">No music playing</div>
-          <div class="duration">00:00</div>
-          <div class="progress-container">
-            <input type="range" id="music-progress" min="0" max="100" value="0" step="1" aria-label="Music progress slider" />
-          </div>
-        </div>
-        <button id="queue-toggle-btn" aria-label="Toggle queue visibility">Show Queue ▼</button>
-      </div>
-      <div id="music-controls">
-        <button id="prev-song-btn" title="Previous Song" aria-label="Previous Song">⏮️</button>
-        <button id="play-pause-btn" title="Play/Pause" aria-label="Play or Pause">▶️</button>
-        <button id="next-song-btn" title="Next Song" aria-label="Next Song">⏭️</button>
-        <button id="shuffle-btn" title="Shuffle" aria-label="Toggle Shuffle">🔀</button>
-        <button id="repeat-btn" title="Repeat Mode" aria-label="Cycle Repeat Mode">🔁</button>
-      </div>
-      <div id="music-library">
-        <ul id="music-list"></ul>
-      </div>
-      <div id="music-queue-container" class="hidden" aria-live="polite" aria-atomic="true">
-        <h4>Up Next:</h4>
-        <ul id="music-queue-list"></ul>
-      </div>
-      <button id="music-upload-btn" title="Upload Audio" aria-label="Upload audio file">+</button>
-      <input type="file" id="music-upload-file" accept="audio/*" aria-hidden="true" />
-      <button id="music-upload-url-btn" aria-label="Upload audio from URL">Upload URL</button>
-      <input type="text" id="music-upload-url-input" placeholder="Enter audio URL here" style="display:none;" aria-label="Audio URL input" />
-    </section>
+  <!-- Pomodoro Tab -->
+  <section role="tabpanel" id="panel-pomodoro" tabindex="0" aria-labelledby="tab-pomodoro">
+    <div id="pomodoro-display" aria-live="polite" aria-atomic="true">25:00</div>
+    <div id="pomodoro-controls">
+      <button id="pomodoro-start" aria-label="Start Pomodoro Timer"><i class="fas fa-play"></i></button>
+      <button id="pomodoro-pause" aria-label="Pause Pomodoro Timer"><i class="fas fa-pause"></i></button>
+      <button id="pomodoro-reset" aria-label="Reset Pomodoro Timer"><i class="fas fa-redo"></i></button>
+    </div>
+  </section>
 
-    <!-- AI Chat -->
-    <section role="tabpanel" id="panel-ai" aria-labelledby="tab-ai">
-      <div id="ai-chat-container">
-        <div id="ai-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
-        <div id="ai-input-container">
-          <input type="text" id="ai-input" placeholder="Ask me anything..." aria-label="AI chat input" autocomplete="off" />
-          <button id="ai-send-btn" aria-label="Send message" disabled>Send</button>
-        </div>
-      </div>
-    </section>
+  <!-- Settings Tab -->
+  <section role="tabpanel" id="panel-settings" tabindex="0" aria-labelledby="tab-settings">
+    <form id="settings-form" autocomplete="off" novalidate>
+      <label for="input-bg-image">Background Image URL or Upload</label>
+      <input type="text" id="input-bg-image" placeholder="Paste image URL here" />
+      <input type="file" id="upload-bg-image" accept="image/*" aria-label="Upload background image" />
+      <button type="button" id="bg-reposition-btn">Reposition Background</button>
 
-    <!-- Games -->
-    <section role="tabpanel" id="panel-games" aria-labelledby="tab-games">
-      <div id="games-list">
-        <div class="game-card" data-game="memory">🧠 Memory</div>
-        <div class="game-card" data-game="snake">🐍 Snake</div>
-        <div class="game-card" data-game="tictactoe">❌ Tic Tac Toe</div>
-      </div>
-      <div id="game-container" aria-live="polite" aria-atomic="true"></div>
-      <button id="game-back-btn" aria-label="Back to game list">Back</button>
-    </section>
-
-    <!-- Settings -->
-    <section role="tabpanel" id="panel-settings" aria-labelledby="tab-settings">
-      <div id="settings-panel">
-        <label for="title-color-picker">Title Color:</label>
-        <input type="color" id="title-color-picker" value="#AD1A72" />
-        <label for="text-color-picker">Default Text Color:</label>
-        <input type="color" id="text-color-picker" value="#AD1A72" />
-        <label for="outline-color-picker">Outline Block Color:</label>
-        <input type="color" id="outline-color-picker" value="#d692b4" />
-        <label for="background-upload">Upload Background Image:</label>
-        <input type="file" id="background-upload" accept="image/*" />
-        <button id="bg-reposition-btn">Reposition Background</button>
-        <label for="widget-width">Custom Widget Width (px):</label>
-        <input type="number" id="widget-width" min="300" max="1920" placeholder="e.g. 800" />
-        <label for="widget-height">Custom Widget Height (px):</label>
-        <input type="number" id="widget-height" min="300" max="1080" placeholder="e.g. 600" />
-        <label for="orientation-select">Orientation:</label>
-        <select id="orientation-select">
-          <option value="landscape" selected>Landscape</option>
-          <option value="portrait">Portrait</option>
-        </select>
-
-        <div style="margin-top:1rem;">
-          <label>Light / Dark Mode</label>
-          <div class="switch">
-            <input type="checkbox" id="dark-mode-toggle" />
-            <span class="slider"></span>
-          </div>
-          <div class="switch-labels">
-            <span>Light ☀️</span><span>Dark 🌙</span>
-          </div>
+      <div id="bg-reposition-container" hidden>
+        <img id="bg-reposition-image" alt="Background to reposition" />
+        <div id="bg-reposition-controls">
+          <button type="button" id="bg-reposition-confirm">Confirm</button>
+          <button type="button" id="bg-reposition-cancel">Cancel</button>
         </div>
       </div>
-    </section>
-  </div>
 
-  <!-- Background reposition modal -->
-  <div id="bg-reposition-container" role="dialog" aria-modal="true" aria-labelledby="bg-reposition-title">
-    <div>
-      <img id="bg-reposition-img" src="" alt="Background reposition image" />
-      <div id="bg-reposition-controls">
-        <button id="bg-reposition-confirm">Confirm</button>
-        <button id="bg-reposition-cancel">Cancel</button>
+      <label for="color-text">Text Color (Hex or use color picker)</label>
+      <input type="color" id="color-text" value="#FCF1F6" />
+      <input type="text" id="hex-text" value="#FCF1F6" />
+
+      <label for="color-title">Title Color</label>
+      <input type="color" id="color-title" value="#AD1A72" />
+      <input type="text" id="hex-title" value="#AD1A72" />
+
+      <label for="color-outline">Outline Color</label>
+      <input type="color" id="color-outline" value="#1a1a1a" />
+      <input type="text" id="hex-outline" value="#1a1a1a" />
+
+      <label for="color-input-bg">Input Background Color</label>
+      <input type="color" id="color-input-bg" value="#222222" />
+      <input type="text" id="hex-input-bg" value="#222222" />
+
+      <label for="color-bg">Page Background Color</label>
+      <input type="color" id="color-bg" value="#1a1a1a" />
+      <input type="text" id="hex-bg" value="#1a1a1a" />
+
+      <label for="alarm-upload">Upload Alarm Sound</label>
+      <input type="file" id="alarm-upload" accept="audio/*" aria-label="Upload alarm sound" />
+      <button type="button" id="alarm-reset">Reset Alarms to Default</button>
+
+      <button type="submit" id="save-settings">Save Settings</button>
+    </form>
+  </section>
+
+  <!-- Chat AI Tab -->
+  <section role="tabpanel" id="panel-chat" tabindex="0" aria-labelledby="tab-chat">
+    <div id="chat-container">
+      <div id="chat-messages" role="log" aria-live="polite"></div>
+      <div id="chat-input-container">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Ask me anything..."
+          aria-label="Chat input"
+          autocomplete="off"
+        />
+        <button id="chat-send-btn" aria-label="Send chat message">Send</button>
       </div>
     </div>
-  </div>
-</div>
+  </section>
+</main>
 
 <script>
 (() => {
-  // UTILITIES
-  function createElement(type, props = {}, ...children) {
-    const el = document.createElement(type);
-    for (const key in props) {
-      if (key.startsWith('on') && typeof props[key] === 'function') {
-        el.addEventListener(key.substring(2).toLowerCase(), props[key]);
-      } else if (key === 'style' && typeof props[key] === 'object') {
-        Object.assign(el.style, props[key]);
-      } else {
-        el.setAttribute(key, props[key]);
-      }
+  // STATE
+  let theme = 'dark';
+
+  // Tabs
+  const tabs = [...document.querySelectorAll('nav#tabs button')];
+  const panels = [...document.querySelectorAll('main section[role="tabpanel"]')];
+  const appTitle = document.getElementById('app-title');
+  const themeToggleBtn = document.getElementById('theme-toggle');
+
+  function switchTab(selectedTabId) {
+    tabs.forEach((tab) => {
+      const selected = tab.id === selectedTabId;
+      tab.setAttribute('aria-selected', selected);
+      if (selected) tab.focus();
+    });
+    panels.forEach((panel) => {
+      panel.classList.toggle('active', panel.id === 'panel-' + selectedTabId.slice(4));
+    });
+    // Change header title based on tab
+    if (selectedTabId === 'tab-todo') {
+      appTitle.textContent = '📝 To-Do List';
+    } else if (selectedTabId === 'tab-countdown') {
+      appTitle.textContent = countdownTitleInput.value || '🎀 Countdown 🎀';
+    } else if (selectedTabId === 'tab-timers') {
+      appTitle.textContent = timersTitleInput.value || '⏲️ Timers';
+    } else if (selectedTabId === 'tab-stopwatch') {
+      appTitle.textContent = '⏱️ Stopwatch';
+    } else if (selectedTabId === 'tab-pomodoro') {
+      appTitle.textContent = '🍅 Pomodoro';
+    } else if (selectedTabId === 'tab-settings') {
+      appTitle.textContent = '⚙️ Settings';
+    } else if (selectedTabId === 'tab-chat') {
+      appTitle.textContent = '🤖 Chat AI';
     }
-    for (const child of children) {
-      if (typeof child === 'string') {
-        el.appendChild(document.createTextNode(child));
-      } else if (child instanceof Node) {
-        el.appendChild(child);
-      }
-    }
-    return el;
   }
+  tabs.forEach((tab) =>
+    tab.addEventListener('click', () => switchTab(tab.id))
+  );
 
-  // APP STATE
-  const state = {
-    activeTab: 'todo',
-    focusMode: false,
-    tasks: JSON.parse(localStorage.getItem('tasks') || '[]'),
-    taskType: 'main', // main or subtask
-    timers: JSON.parse(localStorage.getItem('timers') || '[]'),
-    pomodoro: {
-      duration: 25 * 60,
-      remaining: 25 * 60,
-      running: false,
-      intervalId: null,
-    },
-    music: {
-      library: JSON.parse(localStorage.getItem('music-library') || '[]'),
-      queue: JSON.parse(localStorage.getItem('music-queue') || '[]'),
-      nowPlayingIndex: -1,
-      audioElement: new Audio(),
-      shuffle: false,
-      repeatMode: 'none', // none, one, all
-      isPlaying: false,
-    },
-    ai: {
-      history: [],
-    },
-    settings: {
-      titleColor: '#AD1A72',
-      textColor: '#AD1A72',
-      outlineColor: 'rgba(215, 140, 180, 0.2)',
-      backgroundImage: '',
-      widgetWidth: '',
-      widgetHeight: '',
-      orientation: 'landscape',
-      darkMode: false,
-      backgroundPosition: { x: 50, y: 50, scale: 1 },
-    },
-    game: {
-      currentGame: null,
-    }
-  };
+  // Dark/Light theme toggle
+  themeToggleBtn.addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', theme);
+  });
 
-  // ELEMENTS
-  const tabsBar = document.getElementById('tabs-bar');
-  const tabButtons = tabsBar.querySelectorAll('button[role="tab"]');
-  const tabContentContainer = document.getElementById('tab-content-container');
+  // ------------- TO-DO LIST -------------
 
-  // ToDo Elements
   const todoList = document.getElementById('todo-list');
   const todoInput = document.getElementById('todo-input');
-  const taskTypeToggle = document.getElementById('task-type-toggle');
-  const clearTasksBtn = document.getElementById('clear-tasks-btn');
+  const todoToggleSubtask = document.getElementById('todo-toggle-subtask');
+  const todoClearBtn = document.getElementById('todo-clear');
 
-  // Timer Elements
-  const timersContainer = document.getElementById('timers-container');
-  const addTimerBtn = document.getElementById('add-timer-btn');
-  const clearTimersBtn = document.getElementById('clear-timers-btn');
+  // State
+  let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+  let todoSubtaskMode = false;
 
-  // Pomodoro Elements
-  const pomodoroDisplay = document.getElementById('pomodoro-display');
-  const pomodoroStartBtn = document.getElementById('pomodoro-start');
-  const pomodoroPauseBtn = document.getElementById('pomodoro-pause');
-  const pomodoroResetBtn = document.getElementById('pomodoro-reset');
-
-  // Music Elements
-  const musicNowPlaying = document.getElementById('music-now-playing');
-  const musicCoverArt = musicNowPlaying.querySelector('.cover-art');
-  const musicTitle = musicNowPlaying.querySelector('.title');
-  const musicDuration = musicNowPlaying.querySelector('.duration');
-  const musicProgress = document.getElementById('music-progress');
-  const queueToggleBtn = document.getElementById('queue-toggle-btn');
-  const musicList = document.getElementById('music-list');
-  const musicQueueContainer = document.getElementById('music-queue-container');
-  const musicQueueList = document.getElementById('music-queue-list');
-  const musicUploadBtn = document.getElementById('music-upload-btn');
-  const musicUploadFile = document.getElementById('music-upload-file');
-  const musicUploadUrlBtn = document.getElementById('music-upload-url-btn');
-  const musicUploadUrlInput = document.getElementById('music-upload-url-input');
-  const prevSongBtn = document.getElementById('prev-song-btn');
-  const playPauseBtn = document.getElementById('play-pause-btn');
-  const nextSongBtn = document.getElementById('next-song-btn');
-  const shuffleBtn = document.getElementById('shuffle-btn');
-  const repeatBtn = document.getElementById('repeat-btn');
-
-  // AI Elements
-  const aiMessages = document.getElementById('ai-messages');
-  const aiInput = document.getElementById('ai-input');
-  const aiSendBtn = document.getElementById('ai-send-btn');
-
-  // Games Elements
-  const gamesList = document.getElementById('games-list');
-  const gameContainer = document.getElementById('game-container');
-  const gameBackBtn = document.getElementById('game-back-btn');
-
-  // Settings Elements
-  const titleColorPicker = document.getElementById('title-color-picker');
-  const textColorPicker = document.getElementById('text-color-picker');
-  const outlineColorPicker = document.getElementById('outline-color-picker');
-  const backgroundUpload = document.getElementById('background-upload');
-  const bgRepositionBtn = document.getElementById('bg-reposition-btn');
-  const widgetWidthInput = document.getElementById('widget-width');
-  const widgetHeightInput = document.getElementById('widget-height');
-  const orientationSelect = document.getElementById('orientation-select');
-  const darkModeToggle = document.getElementById('dark-mode-toggle');
-
-  const bgRepositionContainer = document.getElementById('bg-reposition-container');
-  const bgRepositionImg = document.getElementById('bg-reposition-img');
-  const bgRepositionConfirm = document.getElementById('bg-reposition-confirm');
-  const bgRepositionCancel = document.getElementById('bg-reposition-cancel');
-
-  // Focus mode button
-  const focusModeBtn = document.getElementById('focus-mode-btn');
-
-  // Helper: save to local storage
-  function saveToStorage() {
-    localStorage.setItem('tasks', JSON.stringify(state.tasks));
-    localStorage.setItem('timers', JSON.stringify(state.timers));
-    localStorage.setItem('music-library', JSON.stringify(state.music.library));
-    localStorage.setItem('music-queue', JSON.stringify(state.music.queue));
-    localStorage.setItem('settings', JSON.stringify(state.settings));
-  }
-
-  // Initialize settings from localStorage
-  function loadSettings() {
-    const saved = localStorage.getItem('settings');
-    if (saved) {
-      Object.assign(state.settings, JSON.parse(saved));
-    }
-    document.documentElement.style.setProperty('--title-color', state.settings.titleColor);
-    document.documentElement.style.setProperty('--text-color', state.settings.textColor);
-    document.documentElement.style.setProperty('--outline-color', state.settings.outlineColor);
-
-    titleColorPicker.value = state.settings.titleColor;
-    textColorPicker.value = state.settings.textColor;
-    outlineColorPicker.value = state.settings.outlineColor;
-
-    if (state.settings.backgroundImage) {
-      setBackgroundImage(state.settings.backgroundImage);
-    }
-    if (state.settings.widgetWidth) {
-      resizeWidget(state.settings.widgetWidth, state.settings.widgetHeight);
-      widgetWidthInput.value = state.settings.widgetWidth;
-      widgetHeightInput.value = state.settings.widgetHeight;
-    }
-    if (state.settings.orientation) {
-      orientationSelect.value = state.settings.orientation;
-    }
-    darkModeToggle.checked = state.settings.darkMode;
-    updateDarkMode(state.settings.darkMode);
-  }
-
-  // Set background image and style for repositioning
-  function setBackgroundImage(src) {
-    state.settings.backgroundImage = src;
-    const app = document.getElementById('app');
-    app.style.backgroundImage = `url(${src})`;
-    // Reset background position on new image
-    app.style.backgroundPosition = `${state.settings.backgroundPosition.x}% ${state.settings.backgroundPosition.y}%`;
-    app.style.backgroundSize = state.settings.orientation === 'portrait' ? 'auto 100%' : '100% auto';
-    saveToStorage();
-  }
-
-  // Resize widget container with orientation consideration
-  function resizeWidget(width, height) {
-    const app = document.getElementById('app');
-    if (width) app.style.width = width + 'px';
-    else app.style.width = '';
-    if (height) app.style.height = height + 'px';
-    else app.style.height = '';
-  }
-
-  // Dark mode toggle
-  function updateDarkMode(isDark) {
-    if (isDark) {
-      document.body.classList.add('dark');
+  // Icons for bullet
+  function bulletIcon(isSubtask, completed) {
+    if (isSubtask) {
+      return completed ? '<i class="fas fa-star star-fill"></i>' : '<i class="far fa-star star-outline"></i>';
     } else {
-      document.body.classList.remove('dark');
+      return completed ? '<i class="fas fa-heart heart-fill"></i>' : '<i class="far fa-heart heart-outline"></i>';
     }
   }
 
-  // Tabs management
-  function switchTab(newTabId) {
-    if (state.activeTab === newTabId) return;
-    state.activeTab = newTabId;
-    tabButtons.forEach(btn => {
-      const isActive = btn.id === `tab-${newTabId}`;
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive);
-      btn.tabIndex = isActive ? 0 : -1;
-    });
-    const tabPanels = tabContentContainer.querySelectorAll('[role="tabpanel"]');
-    tabPanels.forEach(panel => {
-      panel.classList.toggle('active', panel.id === `panel-${newTabId}`);
-    });
+  function saveTodos() {
+    localStorage.setItem('todos', JSON.stringify(todos));
   }
 
-  // TODO LIST FUNCTIONS
-  function renderTasks() {
+  function renderTodos() {
     todoList.innerHTML = '';
-    state.tasks.forEach((task, i) => {
-      const li = createElement('li', {
-        draggable: 'true',
-        'aria-label': (task.completed ? 'Completed task: ' : 'Task: ') + task.text,
-        role: 'listitem',
-        tabIndex: 0,
-        'data-index': i,
-        class: (task.completed ? 'completed' : '') + (task.type === 'subtask' ? ' subtask' : ''),
+    todos.forEach(({id, text, subtask, completed, due}, idx) => {
+      const li = document.createElement('li');
+      li.className = 'todo-item';
+      li.setAttribute('draggable', 'true');
+      li.setAttribute('data-id', id);
+
+      // Bullet button
+      const bulletBtn = document.createElement('button');
+      bulletBtn.className = 'bullet';
+      bulletBtn.innerHTML = bulletIcon(subtask, completed);
+      bulletBtn.title = completed ? 'Mark incomplete' : 'Mark complete';
+      bulletBtn.setAttribute('aria-label', bulletBtn.title);
+      bulletBtn.addEventListener('click', () => {
+        todos[idx].completed = !todos[idx].completed;
+        saveTodos();
+        renderTodos();
       });
+      li.appendChild(bulletBtn);
 
-      // Bullet for marking completed
-      const bullet = createElement('span', {
-        class: 'bullet' + (task.completed ? ' filled' : ''),
-        role: 'checkbox',
-        'aria-checked': task.completed,
-        tabindex: 0,
-        title: 'Mark task completed',
-        onClick: () => toggleTaskCompletion(i),
-        onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTaskCompletion(i); } }
-      }, task.completed ? '✔️' : '⬜');
+      // Task text, contenteditable
+      const taskText = document.createElement('div');
+      taskText.className = 'todo-text';
+      if (todos[idx].completed) taskText.classList.add('completed');
+      taskText.setAttribute('contenteditable', 'true');
+      taskText.textContent = text;
+      taskText.setAttribute('aria-label', 'Task description');
+      taskText.addEventListener('input', (e) => {
+        todos[idx].text = e.target.textContent.trim();
+        saveTodos();
+      });
+      li.appendChild(taskText);
 
-      // Task text
-      const textSpan = createElement('span', {}, task.text);
+      // Due date
+      const dueDateSpan = document.createElement('span');
+      dueDateSpan.className = 'due-date';
+      if (due) {
+        dueDateSpan.textContent = due;
+        dueDateSpan.classList.remove('placeholder');
+      } else {
+        dueDateSpan.textContent = 'Add Due Date';
+        dueDateSpan.classList.add('placeholder');
+      }
+      dueDateSpan.setAttribute('tabindex', '0');
+      dueDateSpan.setAttribute('aria-label', due ? `Due date: ${due}` : 'Add due date');
+      dueDateSpan.addEventListener('click', () => {
+        showDueDatePicker(dueDateSpan, idx);
+      });
+      dueDateSpan.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          showDueDatePicker(dueDateSpan, idx);
+        }
+      });
+      li.appendChild(dueDateSpan);
 
-      // Remove button, hidden unless hover or focus
-      const removeBtn = createElement('button', {
-        class: 'remove-btn',
-        title: 'Remove Task',
-        ariaLabel: 'Remove task',
-        onClick: () => removeTask(i),
-        tabIndex: 0,
-      }, '✖️');
-
-      li.appendChild(bullet);
-      li.appendChild(textSpan);
+      // Remove button
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'close-btn';
+      removeBtn.setAttribute('aria-label', 'Remove task');
+      removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      removeBtn.addEventListener('click', () => {
+        todos.splice(idx, 1);
+        saveTodos();
+        renderTodos();
+      });
       li.appendChild(removeBtn);
 
       todoList.appendChild(li);
     });
   }
 
-  function toggleTaskCompletion(index) {
-    state.tasks[index].completed = !state.tasks[index].completed;
-    saveToStorage();
-    renderTasks();
-  }
+  // Due date picker logic (inline)
+  function showDueDatePicker(span, taskIndex) {
+    // Replace span content with date input
+    const input = document.createElement('input');
+    input.type = 'date';
+    input.value = todos[taskIndex].due || '';
+    input.style.fontSize = '1rem';
+    input.style.padding = '2px 5px';
+    input.style.borderRadius = '6px';
+    input.style.border = '1px solid var(--outline-dark)';
+    input.style.backgroundColor = theme === 'dark' ? '#222' : '#eee';
+    input.style.color = theme === 'dark' ? '#fcf1f6' : '#1a1a1a';
 
-  function removeTask(index) {
-    state.tasks.splice(index, 1);
-    saveToStorage();
-    renderTasks();
-  }
+    span.innerHTML = '';
+    span.appendChild(input);
+    input.focus();
 
-  function addTask(text, type = 'main') {
-    if (!text.trim()) return;
-    state.tasks.push({ text: text.trim(), completed: false, type });
-    saveToStorage();
-    renderTasks();
-  }
-
-  // Timer Functions (simplified)
-  function renderTimers() {
-    timersContainer.innerHTML = '';
-    if (state.timers.length === 0) {
-      timersContainer.textContent = 'No timers set.';
-      return;
+    function saveDate() {
+      todos[taskIndex].due = input.value || null;
+      saveTodos();
+      renderTodos();
     }
-    state.timers.forEach((timer, i) => {
-      const div = createElement('div', {
-        style: {
-          background: 'rgba(173, 26, 114, 0.15)',
-          padding: '8px 12px',
-          borderRadius: '14px',
-          marginBottom: '8px',
-          fontWeight: '600',
-          color: 'var(--title-color)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        },
-      });
-      const label = createElement('span', {}, timer.label);
-      const time = createElement('span', {}, formatSeconds(timer.remaining));
 
-      // Controls: start/stop/reset
-      const btnStart = createElement('button', { title: 'Start Timer' }, '▶️');
-      const btnPause = createElement('button', { title: 'Pause Timer' }, '⏸️');
-      const btnReset = createElement('button', { title: 'Reset Timer' }, '🔄');
-      btnStart.onclick = () => startTimer(i);
-      btnPause.onclick = () => pauseTimer(i);
-      btnReset.onclick = () => resetTimer(i);
-
-      const controls = createElement('div', {}, btnStart, btnPause, btnReset);
-      controls.style.display = 'flex';
-      controls.style.gap = '6px';
-
-      div.appendChild(label);
-      div.appendChild(time);
-      div.appendChild(controls);
-
-      timersContainer.appendChild(div);
-    });
-  }
-
-  function formatSeconds(seconds) {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
-
-  function addTimer() {
-    const label = prompt('Enter timer label/name:', 'New Timer');
-    if (!label) return;
-    state.timers.push({ label, duration: 300, remaining: 300, running: false, intervalId: null });
-    saveToStorage();
-    renderTimers();
-  }
-
-  function startTimer(index) {
-    const timer = state.timers[index];
-    if (timer.running) return;
-    timer.running = true;
-    timer.intervalId = setInterval(() => {
-      if (timer.remaining > 0) {
-        timer.remaining--;
-        saveToStorage();
-        renderTimers();
-      } else {
-        clearInterval(timer.intervalId);
-        timer.running = false;
-        alert(`Timer "${timer.label}" finished!`);
-        saveToStorage();
-        renderTimers();
+    input.addEventListener('blur', saveDate);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        saveDate();
+      } else if (e.key === 'Escape') {
+        renderTodos();
       }
-    }, 1000);
-  }
-  function pauseTimer(index) {
-    const timer = state.timers[index];
-    if (!timer.running) return;
-    timer.running = false;
-    clearInterval(timer.intervalId);
-    saveToStorage();
-    renderTimers();
-  }
-  function resetTimer(index) {
-    const timer = state.timers[index];
-    timer.remaining = timer.duration;
-    if (timer.running) {
-      clearInterval(timer.intervalId);
-      timer.running = false;
-    }
-    saveToStorage();
-    renderTimers();
-  }
-
-  // Clear timers
-  function resetAllTimers() {
-    state.timers.forEach(t => {
-      t.remaining = t.duration;
-      t.running = false;
-      clearInterval(t.intervalId);
-    });
-    saveToStorage();
-    renderTimers();
-  }
-
-  // Pomodoro Functions
-  function updatePomodoroDisplay() {
-    const m = Math.floor(state.pomodoro.remaining / 60).toString().padStart(2, '0');
-    const s = (state.pomodoro.remaining % 60).toString().padStart(2, '0');
-    pomodoroDisplay.textContent = `${m}:${s}`;
-  }
-
-  function pomodoroTick() {
-    if (state.pomodoro.remaining > 0) {
-      state.pomodoro.remaining--;
-      updatePomodoroDisplay();
-    } else {
-      clearInterval(state.pomodoro.intervalId);
-      state.pomodoro.running = false;
-      alert("Pomodoro finished! Time for a break.");
-      updatePomodoroDisplay();
-    }
-  }
-
-  function startPomodoro() {
-    if (state.pomodoro.running) return;
-    state.pomodoro.running = true;
-    state.pomodoro.intervalId = setInterval(pomodoroTick, 1000);
-  }
-  function pausePomodoro() {
-    if (!state.pomodoro.running) return;
-    state.pomodoro.running = false;
-    clearInterval(state.pomodoro.intervalId);
-  }
-  function resetPomodoro() {
-    pausePomodoro();
-    state.pomodoro.remaining = state.pomodoro.duration;
-    updatePomodoroDisplay();
-  }
-
-  // MUSIC FUNCTIONS
-
-  function renderMusicLibrary() {
-    musicList.innerHTML = '';
-    if (state.music.library.length === 0) {
-      musicList.textContent = 'No songs in library.';
-      return;
-    }
-    state.music.library.forEach((song, i) => {
-      const li = createElement('li', { tabindex: 0, role: 'button', 'data-index': i, 'aria-label': `Play or queue song ${song.name}` });
-
-      const songInfo = createElement('div', { class: 'song-info' });
-      const img = createElement('img', { src: song.cover || '', alt: `${song.name} cover art`, loading: 'lazy' });
-      const name = createElement('span', { class: 'name' }, song.name);
-
-      songInfo.appendChild(img);
-      songInfo.appendChild(name);
-
-      const queueBtn = createElement('button', { class: 'queue-btn', title: 'Add to Queue' }, '➕');
-      queueBtn.onclick = e => {
-        e.stopPropagation();
-        addSongToQueue(i);
-      };
-
-      const removeBtn = createElement('button', { class: 'remove-btn', title: 'Remove from Library' }, '✖️');
-      removeBtn.onclick = e => {
-        e.stopPropagation();
-        removeSongFromLibrary(i);
-      };
-
-      li.appendChild(songInfo);
-      li.appendChild(queueBtn);
-      li.appendChild(removeBtn);
-
-      li.onclick = () => {
-        playSong(i);
-      };
-
-      musicList.appendChild(li);
     });
   }
 
-  function renderMusicNowPlaying() {
-    if (state.music.nowPlayingIndex === -1) {
-      musicCoverArt.src = '';
-      musicTitle.textContent = 'No music playing';
-      musicDuration.textContent = '00:00';
-      musicProgress.value = 0;
-      playPauseBtn.textContent = '▶️';
-      return;
-    }
-    const song = state.music.library[state.music.nowPlayingIndex];
-    if (!song) return;
-    musicCoverArt.src = song.cover || '';
-    musicTitle.textContent = song.name;
-    const duration = state.music.audioElement.duration || 0;
-    musicDuration.textContent = formatSeconds(Math.floor(duration));
-    playPauseBtn.textContent = state.music.isPlaying ? '⏸️' : '▶️';
-  }
-
-  function playSong(index) {
-    if (index < 0 || index >= state.music.library.length) return;
-    state.music.nowPlayingIndex = index;
-    const song = state.music.library[index];
-    state.music.audioElement.src = song.url;
-    state.music.audioElement.play();
-    state.music.isPlaying = true;
-    renderMusicNowPlaying();
-    saveToStorage();
-  }
-
-  function togglePlayPause() {
-    if (state.music.audioElement.paused) {
-      state.music.audioElement.play();
-      state.music.isPlaying = true;
-      playPauseBtn.textContent = '⏸️';
+  todoToggleSubtask.addEventListener('click', () => {
+    todoSubtaskMode = !todoSubtaskMode;
+    todoToggleSubtask.setAttribute('aria-pressed', todoSubtaskMode);
+    todoToggleSubtask.classList.toggle('active', todoSubtaskMode);
+    if (todoSubtaskMode) {
+      todoToggleSubtask.innerHTML = '<i class="far fa-star"></i>';
     } else {
-      state.music.audioElement.pause();
-      state.music.isPlaying = false;
-      playPauseBtn.textContent = '▶️';
-    }
-  }
-
-  function playNextSong() {
-    if (state.music.shuffle) {
-      const randIndex = Math.floor(Math.random() * state.music.library.length);
-      playSong(randIndex);
-      return;
-    }
-    if (state.music.nowPlayingIndex === -1) {
-      if (state.music.library.length > 0) playSong(0);
-      return;
-    }
-    if (state.music.repeatMode === 'one') {
-      // Repeat current
-      playSong(state.music.nowPlayingIndex);
-      return;
-    }
-    if (state.music.nowPlayingIndex < state.music.library.length - 1) {
-      playSong(state.music.nowPlayingIndex + 1);
-    } else {
-      if (state.music.repeatMode === 'all') {
-        playSong(0);
-      } else {
-        // Stop playback
-        state.music.audioElement.pause();
-        state.music.isPlaying = false;
-        playPauseBtn.textContent = '▶️';
-      }
-    }
-  }
-
-  function playPrevSong() {
-    if (state.music.nowPlayingIndex > 0) {
-      playSong(state.music.nowPlayingIndex - 1);
-    } else {
-      playSong(state.music.library.length - 1);
-    }
-  }
-
-  function addSongToQueue(index) {
-    if (index < 0 || index >= state.music.library.length) return;
-    const song = state.music.library[index];
-    state.music.queue.push(song);
-    saveToStorage();
-    renderQueue();
-  }
-
-  function removeSongFromLibrary(index) {
-    if (index < 0 || index >= state.music.library.length) return;
-    if (confirm(`Remove "${state.music.library[index].name}" from library?`)) {
-      state.music.library.splice(index, 1);
-      // Fix nowPlayingIndex if necessary
-      if (state.music.nowPlayingIndex === index) {
-        state.music.nowPlayingIndex = -1;
-        state.music.audioElement.pause();
-        state.music.isPlaying = false;
-      } else if (state.music.nowPlayingIndex > index) {
-        state.music.nowPlayingIndex--;
-      }
-      saveToStorage();
-      renderMusicLibrary();
-      renderMusicNowPlaying();
-    }
-  }
-
-  function renderQueue() {
-    musicQueueList.innerHTML = '';
-    if (state.music.queue.length === 0) {
-      musicQueueList.textContent = '(Queue is empty)';
-      return;
-    }
-    state.music.queue.forEach((song, i) => {
-      const li = createElement('li', {}, song.name);
-      const removeBtn = createElement('button', { class: 'remove-btn', title: 'Remove from Queue' }, '✖️');
-      removeBtn.onclick = e => {
-        e.stopPropagation();
-        state.music.queue.splice(i, 1);
-        saveToStorage();
-        renderQueue();
-      };
-      li.appendChild(removeBtn);
-      musicQueueList.appendChild(li);
-    });
-  }
-
-  // Music progress update handler
-  function updateMusicProgress() {
-    const currentTime = state.music.audioElement.currentTime;
-    const duration = state.music.audioElement.duration || 0;
-    if (duration > 0) {
-      const percent = (currentTime / duration) * 100;
-      musicProgress.value = percent;
-      musicDuration.textContent = `${formatSeconds(Math.floor(currentTime))} / ${formatSeconds(Math.floor(duration))}`;
-    }
-  }
-
-  // Seek music on progress bar change
-  musicProgress.addEventListener('input', () => {
-    const duration = state.music.audioElement.duration || 0;
-    if (duration > 0) {
-      const seekTime = (musicProgress.value / 100) * duration;
-      state.music.audioElement.currentTime = seekTime;
+      todoToggleSubtask.innerHTML = '<i class="far fa-heart"></i>';
     }
   });
 
-  // Music Upload Handlers
-  musicUploadBtn.onclick = () => {
-    musicUploadFile.click();
-  };
-  musicUploadFile.onchange = () => {
-    const files = musicUploadFile.files;
-    if (files.length === 0) return;
-    const file = files[0];
-    const url = URL.createObjectURL(file);
-    const name = file.name;
-    const cover = ''; // Could implement cover extraction later
-    state.music.library.push({ name, url, cover });
-    saveToStorage();
-    renderMusicLibrary();
-    musicUploadFile.value = '';
-  };
-
-  musicUploadUrlBtn.onclick = () => {
-    if (musicUploadUrlInput.style.display === 'none') {
-      musicUploadUrlInput.style.display = 'block';
-      musicUploadUrlInput.focus();
-      musicUploadUrlBtn.textContent = 'Submit URL';
-    } else {
-      const url = musicUploadUrlInput.value.trim();
-      if (!url) {
-        alert('Please enter a valid audio URL.');
-        return;
-      }
-      const name = url.split('/').pop() || 'Untitled';
-      state.music.library.push({ name, url, cover: '' });
-      saveToStorage();
-      renderMusicLibrary();
-      musicUploadUrlInput.value = '';
-      musicUploadUrlInput.style.display = 'none';
-      musicUploadUrlBtn.textContent = 'Upload URL';
-    }
-  };
-
-  // Audio event listeners
-  state.music.audioElement.addEventListener('timeupdate', updateMusicProgress);
-  state.music.audioElement.addEventListener('ended', playNextSong);
-
-  // Play/pause, next, prev buttons
-  playPauseBtn.onclick = togglePlayPause;
-  nextSongBtn.onclick = playNextSong;
-  prevSongBtn.onclick = playPrevSong;
-
-  // Shuffle and repeat
-  shuffleBtn.onclick = () => {
-    state.music.shuffle = !state.music.shuffle;
-    shuffleBtn.style.color = state.music.shuffle ? '#AD1A72' : 'var(--title-color)';
-  };
-  repeatBtn.onclick = () => {
-    const modes = ['none', 'one', 'all'];
-    const currentIndex = modes.indexOf(state.music.repeatMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    state.music.repeatMode = modes[nextIndex];
-    repeatBtn.textContent = state.music.repeatMode === 'none' ? '🔁' : state.music.repeatMode === 'one' ? '🔂' : '🔁⬜';
-  };
-
-  // AI Chat Handlers
-  function renderAIMessages() {
-    aiMessages.innerHTML = '';
-    state.ai.history.forEach(msg => {
-      const div = createElement('div', { class: msg.from === 'user' ? 'ai-msg user' : 'ai-msg bot' }, msg.text);
-      aiMessages.appendChild(div);
-    });
-    aiMessages.scrollTop = aiMessages.scrollHeight;
-  }
-
-  function addAIMessage(text, from) {
-    state.ai.history.push({ text, from });
-    renderAIMessages();
-  }
-
-  aiInput.addEventListener('input', () => {
-    aiSendBtn.disabled = aiInput.value.trim() === '';
-  });
-
-  aiSendBtn.onclick = () => {
-    const userMsg = aiInput.value.trim();
-    if (!userMsg) return;
-    addAIMessage(userMsg, 'user');
-    aiInput.value = '';
-    aiSendBtn.disabled = true;
-    // Simulate AI response
-    setTimeout(() => {
-      addAIMessage('Sorry, AI chat is not yet implemented.', 'bot');
-    }, 500);
-  };
-
-  // Games handlers (simplified)
-  gamesList.addEventListener('click', e => {
-    if (e.target.classList.contains('game-card')) {
-      const game = e.target.getAttribute('data-game');
-      state.game.currentGame = game;
-      renderGame(game);
-      switchTab('games');
-      gameBackBtn.style.display = 'inline-block';
-    }
-  });
-
-  gameBackBtn.onclick = () => {
-    state.game.currentGame = null;
-    gameContainer.innerHTML = '';
-    switchTab('todo');
-    gameBackBtn.style.display = 'none';
-  };
-
-  function renderGame(game) {
-    gameContainer.innerHTML = '';
-    if (game === 'memory') {
-      gameContainer.textContent = 'Memory game coming soon!';
-    } else if (game === 'snake') {
-      gameContainer.textContent = 'Snake game coming soon!';
-    } else if (game === 'tictactoe') {
-      gameContainer.textContent = 'Tic Tac Toe game coming soon!';
-    }
-  }
-
-  // Settings Handlers
-  titleColorPicker.oninput = e => {
-    state.settings.titleColor = e.target.value;
-    document.documentElement.style.setProperty('--title-color', e.target.value);
-    saveToStorage();
-  };
-  textColorPicker.oninput = e => {
-    state.settings.textColor = e.target.value;
-    document.documentElement.style.setProperty('--text-color', e.target.value);
-    saveToStorage();
-  };
-  outlineColorPicker.oninput = e => {
-    state.settings.outlineColor = e.target.value;
-    document.documentElement.style.setProperty('--outline-color', e.target.value);
-    saveToStorage();
-  };
-
-  backgroundUpload.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = evt => {
-      setBackgroundImage(evt.target.result);
-      bgRepositionImg.src = evt.target.result;
-      bgRepositionContainer.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-
-  bgRepositionBtn.onclick = () => {
-    if (!state.settings.backgroundImage) {
-      alert('No background image to reposition.');
-      return;
-    }
-    bgRepositionImg.src = state.settings.backgroundImage;
-    bgRepositionContainer.style.display = 'block';
-  };
-
-  bgRepositionConfirm.onclick = () => {
-    // For simplicity, just close modal; advanced reposition not implemented here
-    bgRepositionContainer.style.display = 'none';
-  };
-  bgRepositionCancel.onclick = () => {
-    bgRepositionContainer.style.display = 'none';
-  };
-
-  widgetWidthInput.onchange = e => {
-    const val = parseInt(e.target.value);
-    if (val && val >= 300 && val <= 1920) {
-      state.settings.widgetWidth = val;
-      resizeWidget(val, state.settings.widgetHeight);
-      saveToStorage();
-    }
-  };
-  widgetHeightInput.onchange = e => {
-    const val = parseInt(e.target.value);
-    if (val && val >= 300 && val <= 1080) {
-      state.settings.widgetHeight = val;
-      resizeWidget(state.settings.widgetWidth, val);
-      saveToStorage();
-    }
-  };
-  orientationSelect.onchange = e => {
-    state.settings.orientation = e.target.value;
-    if (state.settings.backgroundImage) {
-      const app = document.getElementById('app');
-      app.style.backgroundSize = e.target.value === 'portrait' ? 'auto 100%' : '100% auto';
-    }
-    saveToStorage();
-  };
-  darkModeToggle.onchange = e => {
-    state.settings.darkMode = e.target.checked;
-    updateDarkMode(e.target.checked);
-    saveToStorage();
-  };
-
-  // Focus mode toggle
-  focusModeBtn.onclick = () => {
-    state.focusMode = !state.focusMode;
-    document.body.classList.toggle('focus-mode', state.focusMode);
-  };
-
-  // Task input handling
-  todoInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      addTask(todoInput.value, state.taskType);
+  todoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && todoInput.value.trim()) {
+      e.preventDefault();
+      addTodo(todoInput.value.trim(), todoSubtaskMode);
       todoInput.value = '';
     }
   });
 
-  taskTypeToggle.onclick = () => {
-    state.taskType = state.taskType === 'main' ? 'subtask' : 'main';
-    taskTypeToggle.textContent = state.taskType === 'main' ? '❤️' : '🧡';
-    taskTypeToggle.title = state.taskType === 'main' ? 'Main Task' : 'Subtask';
-  };
+  function addTodo(text, subtask = false) {
+    todos.push({
+      id: Date.now() + Math.random(),
+      text,
+      subtask,
+      completed: false,
+      due: null,
+    });
+    saveTodos();
+    renderTodos();
+    todoInput.focus();
+  }
 
-  clearTasksBtn.onclick = () => {
-    if (confirm('Clear all tasks?')) {
-      state.tasks = [];
-      saveToStorage();
-      renderTasks();
+  todoClearBtn.addEventListener('click', () => {
+    if (confirm('Clear all tasks? This cannot be undone.')) {
+      todos = [];
+      saveTodos();
+      renderTodos();
     }
-  };
+  });
 
-  // Timer button handlers
-  addTimerBtn.onclick = addTimer;
-  clearTimersBtn.onclick = resetAllTimers;
+  // Initially render todos
+  renderTodos();
 
-  // Initial render
-  loadSettings();
-  renderTasks();
+  // ------------- COUNTDOWNS -------------
+
+  const countdownList = document.getElementById('countdown-list');
+  const countdownAddBtn = document.getElementById('countdown-add');
+  const countdownClearBtn = document.getElementById('countdown-clear');
+  const countdownTitleInput = document.getElementById('countdown-title-input');
+
+  let countdowns = JSON.parse(localStorage.getItem('countdowns') || '[]');
+
+  countdownTitleInput.value = localStorage.getItem('countdownTitle') || '🎀 Countdown 🎀';
+
+  function saveCountdowns() {
+    localStorage.setItem('countdowns', JSON.stringify(countdowns));
+  }
+
+  function renderCountdowns() {
+    countdownList.innerHTML = '';
+    countdowns.forEach(({id, title, date}) => {
+      const card = document.createElement('div');
+      card.className = 'countdown-card';
+
+      // Title editable
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.className = 'editable-title';
+      titleInput.value = title;
+      titleInput.setAttribute('aria-label', 'Countdown title');
+      titleInput.addEventListener('input', () => {
+        const idx = countdowns.findIndex(c => c.id === id);
+        if (idx !== -1) {
+          countdowns[idx].title = titleInput.value.trim() || '🎀 Countdown 🎀';
+          saveCountdowns();
+          if (document.activeElement !== titleInput) renderCountdowns();
+        }
+      });
+      card.appendChild(titleInput);
+
+      // Date input
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.value = date;
+      dateInput.setAttribute('aria-label', 'Countdown target date');
+      dateInput.addEventListener('change', () => {
+        const idx = countdowns.findIndex(c => c.id === id);
+        if (idx !== -1) {
+          countdowns[idx].date = dateInput.value;
+          saveCountdowns();
+        }
+      });
+      card.appendChild(dateInput);
+
+      // Countdown display
+      const countdownDisplay = document.createElement('div');
+      countdownDisplay.className = 'countdown-time';
+      card.appendChild(countdownDisplay);
+
+      // Close button
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-btn-timer';
+      closeBtn.setAttribute('aria-label', 'Remove countdown');
+      closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      closeBtn.addEventListener('click', () => {
+        countdowns = countdowns.filter(c => c.id !== id);
+        saveCountdowns();
+        renderCountdowns();
+      });
+      card.appendChild(closeBtn);
+
+      countdownList.appendChild(card);
+
+      // Update countdown display immediately and then every second
+      function updateCountdown() {
+        if (!dateInput.value) {
+          countdownDisplay.textContent = 'Set date';
+          return;
+        }
+        const targetDate = new Date(dateInput.value + 'T00:00:00');
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+          countdownDisplay.textContent = '🎉 Time reached!';
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        countdownDisplay.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    });
+  }
+
+  countdownAddBtn.addEventListener('click', () => {
+    countdowns.push({
+      id: Date.now() + Math.random(),
+      title: '🎀 Countdown 🎀',
+      date: ''
+    });
+    saveCountdowns();
+    renderCountdowns();
+  });
+
+  countdownClearBtn.addEventListener('click', () => {
+    if (confirm('Clear all countdowns?')) {
+      countdowns = [];
+      saveCountdowns();
+      renderCountdowns();
+    }
+  });
+
+  countdownTitleInput.addEventListener('input', () => {
+    localStorage.setItem('countdownTitle', countdownTitleInput.value);
+    if (document.activeElement !== countdownTitleInput) {
+      appTitle.textContent = countdownTitleInput.value || '🎀 Countdown 🎀';
+    }
+  });
+
+  // Initial render countdowns
+  renderCountdowns();
+
+  // ------------- TIMERS -------------
+
+  const timerList = document.getElementById('timer-list');
+  const timerAddBtn = document.getElementById('timer-add');
+  const timerClearBtn = document.getElementById('timer-clear');
+  const timersTitleInput = document.getElementById('timers-title-input');
+
+  let timers = JSON.parse(localStorage.getItem('timers') || '[]');
+  timersTitleInput.value = localStorage.getItem('timersTitle') || '⏲️ Timers';
+
+  function saveTimers() {
+    localStorage.setItem('timers', JSON.stringify(timers));
+  }
+
+  function renderTimers() {
+    timerList.innerHTML = '';
+    timers.forEach(({id, title, secondsLeft, running, totalSeconds}) => {
+      const card = document.createElement('div');
+      card.className = 'timer-card';
+
+      // Title editable
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.className = 'editable-title';
+      titleInput.value = title;
+      titleInput.setAttribute('aria-label', 'Timer title');
+      titleInput.addEventListener('input', () => {
+        const idx = timers.findIndex(t => t.id === id);
+        if (idx !== -1) {
+          timers[idx].title = titleInput.value.trim() || '⏲️ Timer';
+          saveTimers();
+          if (document.activeElement !== titleInput) renderTimers();
+        }
+      });
+      card.appendChild(titleInput);
+
+      // Duration input (mm:ss)
+      const durationInput = document.createElement('input');
+      durationInput.type = 'time';
+      durationInput.value = secondsToTimeString(totalSeconds || 0);
+      durationInput.step = 1;
+      durationInput.setAttribute('aria-label', 'Timer duration (HH:MM)');
+      durationInput.addEventListener('change', () => {
+        const idx = timers.findIndex(t => t.id === id);
+        if (idx !== -1) {
+          const [hh, mm, ss] = durationInput.value.split(':').map(Number);
+          const newTotalSeconds = (hh || 0) * 3600 + (mm || 0) * 60 + (ss || 0);
+          timers[idx].totalSeconds = newTotalSeconds;
+          timers[idx].secondsLeft = newTotalSeconds;
+          timers[idx].running = false;
+          saveTimers();
+          renderTimers();
+        }
+      });
+      card.appendChild(durationInput);
+
+      // Timer display
+      const timerDisplay = document.createElement('div');
+      timerDisplay.className = 'countdown-time';
+      card.appendChild(timerDisplay);
+
+      // Controls: start/pause/reset
+      const controls = document.createElement('div');
+      controls.className = 'timer-controls';
+
+      const startBtn = document.createElement('button');
+      startBtn.innerHTML = '<i class="fas fa-play"></i>';
+      startBtn.title = 'Start Timer';
+      startBtn.addEventListener('click', () => {
+        const idx = timers.findIndex(t => t.id === id);
+        if (idx !== -1) {
+          timers[idx].running = true;
+          saveTimers();
+          renderTimers();
+        }
+      });
+      controls.appendChild(startBtn);
+
+      const pauseBtn = document.createElement('button');
+      pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      pauseBtn.title = 'Pause Timer';
+      pauseBtn.addEventListener('click', () => {
+        const idx = timers.findIndex(t => t.id === id);
+        if (idx !== -1) {
+          timers[idx].running = false;
+          saveTimers();
+          renderTimers();
+        }
+      });
+      controls.appendChild(pauseBtn);
+
+      const resetBtn = document.createElement('button');
+      resetBtn.innerHTML = '<i class="fas fa-redo"></i>';
+      resetBtn.title = 'Reset Timer';
+      resetBtn.addEventListener('click', () => {
+        const idx = timers.findIndex(t => t.id === id);
+        if (idx !== -1) {
+          timers[idx].secondsLeft = timers[idx].totalSeconds;
+          timers[idx].running = false;
+          saveTimers();
+          renderTimers();
+        }
+      });
+      controls.appendChild(resetBtn);
+
+      card.appendChild(controls);
+
+      // Close button
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-btn-timer';
+      closeBtn.setAttribute('aria-label', 'Remove timer');
+      closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      closeBtn.addEventListener('click', () => {
+        timers = timers.filter(t => t.id !== id);
+        saveTimers();
+        renderTimers();
+      });
+      card.appendChild(closeBtn);
+
+      timerList.appendChild(card);
+
+      // Update display & countdown for this timer
+      function updateTimer() {
+        if (timers.find(t => t.id === id)?.running) {
+          timers.forEach((t, i) => {
+            if (t.id === id && t.secondsLeft > 0) {
+              t.secondsLeft--;
+              if (t.secondsLeft <= 0) {
+                t.running = false;
+                alert(`Timer "${t.title}" finished!`);
+                playAlarm();
+              }
+            }
+          });
+          saveTimers();
+          renderTimers();
+        }
+      }
+      updateTimer();
+      setInterval(() => {
+        if (timers.find(t => t.id === id)?.running) updateTimer();
+      }, 1000);
+
+      // Set initial timer display
+      timerDisplay.textContent = secondsToTimeString(secondsLeft || 0);
+    });
+  }
+
+  function secondsToTimeString(totalSeconds) {
+    const hh = Math.floor(totalSeconds / 3600);
+    const mm = Math.floor((totalSeconds % 3600) / 60);
+    const ss = totalSeconds % 60;
+    if (hh > 0) {
+      return `${padNum(hh)}:${padNum(mm)}:${padNum(ss)}`;
+    }
+    return `${padNum(mm)}:${padNum(ss)}`;
+  }
+  function padNum(num) {
+    return num.toString().padStart(2, '0');
+  }
+
+  timerAddBtn.addEventListener('click', () => {
+    timers.push({
+      id: Date.now() + Math.random(),
+      title: '⏲️ Timer',
+      totalSeconds: 1500,
+      secondsLeft: 1500,
+      running: false,
+    });
+    saveTimers();
+    renderTimers();
+  });
+
+  timerClearBtn.addEventListener('click', () => {
+    if (confirm('Clear all timers?')) {
+      timers = [];
+      saveTimers();
+      renderTimers();
+    }
+  });
+
+  timersTitleInput.addEventListener('input', () => {
+    localStorage.setItem('timersTitle', timersTitleInput.value);
+    if (document.activeElement !== timersTitleInput) {
+      appTitle.textContent = timersTitleInput.value || '⏲️ Timers';
+    }
+  });
+
   renderTimers();
-  renderMusicLibrary();
-  renderMusicNowPlaying();
-  renderQueue();
-  updatePomodoroDisplay();
 
-  // Keyboard navigation for tabs (left/right arrows)
-  tabsBar.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      e.preventDefault();
-      const currentIndex = Array.from(tabButtons).findIndex(btn => btn.id === `tab-${state.activeTab}`);
-      let newIndex = currentIndex + (e.key === 'ArrowRight' ? 1 : -1);
-      if (newIndex < 0) newIndex = tabButtons.length - 1;
-      else if (newIndex >= tabButtons.length) newIndex = 0;
-      tabButtons[newIndex].focus();
-      switchTab(tabButtons[newIndex].id.replace('tab-', ''));
+  // ------------- STOPWATCH -------------
+
+  const stopwatchDisplay = document.getElementById('stopwatch-display');
+  const stopwatchStartBtn = document.getElementById('stopwatch-start');
+  const stopwatchPauseBtn = document.getElementById('stopwatch-pause');
+  const stopwatchResetBtn = document.getElementById('stopwatch-reset');
+  const stopwatchPunchBtn = document.getElementById('stopwatch-punch');
+  const punchesList = document.getElementById('punches-list');
+
+  let stopwatchStartTime = null;
+  let stopwatchElapsed = 0;
+  let stopwatchRunning = false;
+  let stopwatchTimerInterval = null;
+  let punches = JSON.parse(localStorage.getItem('stopwatchPunches') || '[]');
+
+  function formatStopwatchTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const centiseconds = Math.floor((ms % 1000) / 10);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return `${padNum(hours)}:${padNum(minutes)}:${padNum(seconds)}.${padNum(centiseconds)}`;
+    }
+    return `${padNum(minutes)}:${padNum(seconds)}.${padNum(centiseconds)}`;
+  }
+
+  function updateStopwatch() {
+    if (!stopwatchRunning) return;
+    const now = Date.now();
+    stopwatchElapsed = now - stopwatchStartTime;
+    stopwatchDisplay.textContent = formatStopwatchTime(stopwatchElapsed);
+  }
+
+  function startStopwatch() {
+    if (!stopwatchRunning) {
+      stopwatchStartTime = Date.now() - stopwatchElapsed;
+      stopwatchRunning = true;
+      stopwatchTimerInterval = setInterval(updateStopwatch, 10);
+    }
+  }
+  function pauseStopwatch() {
+    if (stopwatchRunning) {
+      stopwatchRunning = false;
+      clearInterval(stopwatchTimerInterval);
+    }
+  }
+  function resetStopwatch() {
+    stopwatchRunning = false;
+    clearInterval(stopwatchTimerInterval);
+    stopwatchElapsed = 0;
+    stopwatchDisplay.textContent = formatStopwatchTime(stopwatchElapsed);
+    punches = [];
+    localStorage.setItem('stopwatchPunches', JSON.stringify(punches));
+    renderPunches();
+  }
+  function punchStopwatch() {
+    if (!stopwatchRunning) return;
+    punches.push(formatStopwatchTime(stopwatchElapsed));
+    localStorage.setItem('stopwatchPunches', JSON.stringify(punches));
+    renderPunches();
+  }
+  function renderPunches() {
+    punchesList.innerHTML = '';
+    punches.forEach((time, idx) => {
+      const li = document.createElement('li');
+      li.textContent = `Punch ${idx + 1}: ${time}`;
+      punchesList.appendChild(li);
+    });
+  }
+
+  stopwatchStartBtn.addEventListener('click', startStopwatch);
+  stopwatchPauseBtn.addEventListener('click', pauseStopwatch);
+  stopwatchResetBtn.addEventListener('click', resetStopwatch);
+  stopwatchPunchBtn.addEventListener('click', punchStopwatch);
+
+  renderPunches();
+
+  // ------------- POMODORO -------------
+
+  const pomodoroDisplay = document.getElementById('pomodoro-display');
+  const pomodoroStartBtn = document.getElementById('pomodoro-start');
+  const pomodoroPauseBtn = document.getElementById('pomodoro-pause');
+  const pomodoroResetBtn = document.getElementById('pomodoro-reset');
+
+  let pomodoroDuration = 25 * 60; // 25 min default
+  let pomodoroRemaining = pomodoroDuration;
+  let pomodoroRunning = false;
+  let pomodoroInterval = null;
+
+  function formatPomodoroTime(seconds) {
+    const mm = Math.floor(seconds / 60);
+    const ss = seconds % 60;
+    return `${padNum(mm)}:${padNum(ss)}`;
+  }
+
+  function updatePomodoro() {
+    if (!pomodoroRunning) return;
+    if (pomodoroRemaining > 0) {
+      pomodoroRemaining--;
+      pomodoroDisplay.textContent = formatPomodoroTime(pomodoroRemaining);
+    } else {
+      pomodoroRunning = false;
+      clearInterval(pomodoroInterval);
+      alert('Pomodoro complete! Take a break!');
+      playAlarm();
+    }
+  }
+
+  pomodoroStartBtn.addEventListener('click', () => {
+    if (!pomodoroRunning) {
+      pomodoroRunning = true;
+      pomodoroInterval = setInterval(updatePomodoro, 1000);
+    }
+  });
+  pomodoroPauseBtn.addEventListener('click', () => {
+    if (pomodoroRunning) {
+      pomodoroRunning = false;
+      clearInterval(pomodoroInterval);
+    }
+  });
+  pomodoroResetBtn.addEventListener('click', () => {
+    pomodoroRunning = false;
+    clearInterval(pomodoroInterval);
+    pomodoroRemaining = pomodoroDuration;
+    pomodoroDisplay.textContent = formatPomodoroTime(pomodoroRemaining);
+  });
+  pomodoroDisplay.textContent = formatPomodoroTime(pomodoroRemaining);
+
+  // ------------- SETTINGS -------------
+
+  const settingsForm = document.getElementById('settings-form');
+  const inputBgImageURL = document.getElementById('input-bg-image');
+  const uploadBgImageFile = document.getElementById('upload-bg-image');
+  const bgRepositionBtn = document.getElementById('bg-reposition-btn');
+  const bgRepositionContainer = document.getElementById('bg-reposition-container');
+  const bgRepositionImage = document.getElementById('bg-reposition-image');
+  const bgRepositionConfirmBtn = document.getElementById('bg-reposition-confirm');
+  const bgRepositionCancelBtn = document.getElementById('bg-reposition-cancel');
+
+  const colorTextInput = document.getElementById('color-text');
+  const hexTextInput = document.getElementById('hex-text');
+  const colorTitleInput = document.getElementById('color-title');
+  const hexTitleInput = document.getElementById('hex-title');
+  const colorOutlineInput = document.getElementById('color-outline');
+  const hexOutlineInput = document.getElementById('hex-outline');
+  const colorInputBgInput = document.getElementById('color-input-bg');
+  const hexInputBgInput = document.getElementById('hex-input-bg');
+  const colorBgInput = document.getElementById('color-bg');
+  const hexBgInput = document.getElementById('hex-bg');
+
+  const alarmUploadInput = document.getElementById('alarm-upload');
+  const alarmResetBtn = document.getElementById('alarm-reset');
+
+  let backgroundState = {
+    url: '',
+    posX: 50,
+    posY: 50,
+    scale: 1,
+  };
+  let isRepositioning = false;
+  let dragStart = null;
+
+  function applyBackground() {
+    document.querySelector('main').style.backgroundImage = backgroundState.url ? `url('${backgroundState.url}')` : 'none';
+    document.querySelector('main').style.backgroundPosition = `${backgroundState.posX}% ${backgroundState.posY}%`;
+    document.querySelector('main').style.backgroundSize = `cover`;
+  }
+
+  function saveSettings() {
+    localStorage.setItem('backgroundState', JSON.stringify(backgroundState));
+    localStorage.setItem('textColor', colorTextInput.value);
+    localStorage.setItem('titleColor', colorTitleInput.value);
+    localStorage.setItem('outlineColor', colorOutlineInput.value);
+    localStorage.setItem('inputBgColor', colorInputBgInput.value);
+    localStorage.setItem('bgColor', colorBgInput.value);
+  }
+
+  function loadSettings() {
+    const savedBackground = localStorage.getItem('backgroundState');
+    if (savedBackground) {
+      backgroundState = JSON.parse(savedBackground);
+      applyBackground();
+    }
+    const savedTextColor = localStorage.getItem('textColor');
+    if (savedTextColor) colorTextInput.value = savedTextColor;
+    const savedTitleColor = localStorage.getItem('titleColor');
+    if (savedTitleColor) colorTitleInput.value = savedTitleColor;
+    const savedOutlineColor = localStorage.getItem('outlineColor');
+    if (savedOutlineColor) colorOutlineInput.value = savedOutlineColor;
+    const savedInputBgColor = localStorage.getItem('inputBgColor');
+    if (savedInputBgColor) colorInputBgInput.value = savedInputBgColor;
+    const savedBgColor = localStorage.getItem('bgColor');
+    if (savedBgColor) colorBgInput.value = savedBgColor;
+
+    // Apply colors
+    document.documentElement.style.setProperty('--text-dark', colorTextInput.value);
+    document.documentElement.style.setProperty('--title-dark', colorTitleInput.value);
+    document.documentElement.style.setProperty('--outline-dark', colorOutlineInput.value);
+    document.documentElement.style.setProperty('--input-bg-dark', colorInputBgInput.value);
+    document.documentElement.style.setProperty('--bg-dark', colorBgInput.value);
+
+    document.documentElement.style.setProperty('--text-light', colorTextInput.value);
+    document.documentElement.style.setProperty('--title-light', colorTitleInput.value);
+    document.documentElement.style.setProperty('--outline-light', colorOutlineInput.value);
+    document.documentElement.style.setProperty('--input-bg-light', colorInputBgInput.value);
+    document.documentElement.style.setProperty('--bg-light', colorBgInput.value);
+  }
+
+  loadSettings();
+
+  bgRepositionBtn.addEventListener('click', () => {
+    if (!backgroundState.url) return alert('No background image to reposition.');
+    isRepositioning = true;
+    bgRepositionContainer.hidden = false;
+    bgRepositionImage.src = backgroundState.url;
+    bgRepositionImage.style.objectPosition = `${backgroundState.posX}% ${backgroundState.posY}%`;
+  });
+
+  bgRepositionImage.addEventListener('mousedown', (e) => {
+    if (!isRepositioning) return;
+    dragStart = { x: e.clientX, y: e.clientY };
+  });
+  bgRepositionImage.addEventListener('mousemove', (e) => {
+    if (!isRepositioning || !dragStart) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    backgroundState.posX = Math.min(100, Math.max(0, backgroundState.posX + dx / 5));
+    backgroundState.posY = Math.min(100, Math.max(0, backgroundState.posY + dy / 5));
+    bgRepositionImage.style.objectPosition = `${backgroundState.posX}% ${backgroundState.posY}%`;
+    dragStart = { x: e.clientX, y: e.clientY };
+  });
+  bgRepositionImage.addEventListener('mouseup', () => {
+    dragStart = null;
+  });
+  bgRepositionImage.addEventListener('mouseleave', () => {
+    dragStart = null;
+  });
+
+  bgRepositionConfirmBtn.addEventListener('click', () => {
+    isRepositioning = false;
+    bgRepositionContainer.hidden = true;
+    applyBackground();
+    saveSettings();
+  });
+  bgRepositionCancelBtn.addEventListener('click', () => {
+    isRepositioning = false;
+    bgRepositionContainer.hidden = true;
+  });
+
+  inputBgImageURL.addEventListener('change', () => {
+    backgroundState.url = inputBgImageURL.value;
+    backgroundState.posX = 50;
+    backgroundState.posY = 50;
+    applyBackground();
+    saveSettings();
+  });
+
+  uploadBgImageFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      backgroundState.url = evt.target.result;
+      backgroundState.posX = 50;
+      backgroundState.posY = 50;
+      applyBackground();
+      saveSettings();
+      inputBgImageURL.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Sync color hex inputs with color pickers
+  function syncColorInputs(colorInput, hexInput) {
+    colorInput.addEventListener('input', () => {
+      hexInput.value = colorInput.value;
+      applyColors();
+      saveSettings();
+    });
+    hexInput.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(hexInput.value)) {
+        colorInput.value = hexInput.value;
+        applyColors();
+        saveSettings();
+      }
+    });
+  }
+
+  function applyColors() {
+    document.documentElement.style.setProperty('--text-dark', colorTextInput.value);
+    document.documentElement.style.setProperty('--title-dark', colorTitleInput.value);
+    document.documentElement.style.setProperty('--outline-dark', colorOutlineInput.value);
+    document.documentElement.style.setProperty('--input-bg-dark', colorInputBgInput.value);
+    document.documentElement.style.setProperty('--bg-dark', colorBgInput.value);
+
+    document.documentElement.style.setProperty('--text-light', colorTextInput.value);
+    document.documentElement.style.setProperty('--title-light', colorTitleInput.value);
+    document.documentElement.style.setProperty('--outline-light', colorOutlineInput.value);
+    document.documentElement.style.setProperty('--input-bg-light', colorInputBgInput.value);
+    document.documentElement.style.setProperty('--bg-light', colorBgInput.value);
+  }
+
+  syncColorInputs(colorTextInput, hexTextInput);
+  syncColorInputs(colorTitleInput, hexTitleInput);
+  syncColorInputs(colorOutlineInput, hexOutlineInput);
+  syncColorInputs(colorInputBgInput, hexInputBgInput);
+  syncColorInputs(colorBgInput, hexBgInput);
+
+  settingsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSettings();
+    alert('Settings saved!');
+  });
+
+  // ------------- ALARM SOUND -------------
+
+  const alarmAudio = new Audio();
+  let defaultAlarmSrc = 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg';
+  alarmAudio.src = localStorage.getItem('alarmSound') || defaultAlarmSrc;
+
+  alarmUploadInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      alarmAudio.src = evt.target.result;
+      localStorage.setItem('alarmSound', evt.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  alarmResetBtn.addEventListener('click', () => {
+    alarmAudio.src = defaultAlarmSrc;
+    localStorage.removeItem('alarmSound');
+    alert('Alarm sound reset to default.');
+  });
+
+  function playAlarm() {
+    alarmAudio.play();
+  }
+
+  // ------------- CHAT AI -------------
+
+  const chatContainer = document.getElementById('chat-container');
+  const chatMessages = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('chat-input');
+  const chatSendBtn = document.getElementById('chat-send-btn');
+
+  function addChatMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-message ' + (sender === 'user' ? 'user' : 'ai');
+    msgDiv.setAttribute('role', 'article');
+    msgDiv.setAttribute('aria-live', 'polite');
+    const msgText = document.createElement('span');
+    msgText.className = 'msg-text';
+    msgText.textContent = text;
+    msgDiv.appendChild(msgText);
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+    addChatMessage(message, 'user');
+    chatInput.value = '';
+    chatInput.disabled = true;
+    chatSendBtn.disabled = true;
+
+    try {
+      const response = await fetch('https://replit.com/@2023bradleyneva/notion-ai-backend', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message})
+      });
+      const data = await response.json();
+      if (data.response) {
+        addChatMessage(data.response, 'ai');
+      } else {
+        addChatMessage('Error: No response from AI.', 'ai');
+      }
+    } catch (error) {
+      addChatMessage('Error: ' + error.message, 'ai');
+    } finally {
+      chatInput.disabled = false;
+      chatSendBtn.disabled = false;
+      chatInput.focus();
+    }
+  }
+
+  chatSendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
     }
   });
 
-  // Accessibility: focus styles on buttons for keyboard users
-  document.body.addEventListener('keydown', e => {
-    if (e.key === 'Tab') {
-      document.body.classList.add('user-is-tabbing');
-    }
-  });
-  document.body.addEventListener('mousedown', e => {
-    document.body.classList.remove('user-is-tabbing');
-  });
-
+  // Set initial tab
+  switchTab('tab-todo');
 })();
 </script>
 </body>
