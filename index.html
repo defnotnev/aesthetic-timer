@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ultimate School Widget</title>
 <style>
-  /* Reset & base */
+  /* Base and reset */
   * {
     box-sizing: border-box;
   }
@@ -15,6 +15,7 @@
     background: var(--bg-color, #FCF1F6);
     color: var(--text-color, #4B3A52);
     overflow: hidden;
+    user-select: none;
   }
   :root {
     --text-color: #FCF1F6;
@@ -22,13 +23,12 @@
     --outline-color: rgba(173, 26, 114, 0.2);
     --bg-color-light: #FCF1F6;
     --bg-color-dark: #2B1B34;
+    --bg-color: var(--bg-color-light);
     --bg-image-position: center center;
     --bg-image-size: cover;
     --tab-bar-height: 50px;
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-
-  /* Dark theme variables */
   body.dark {
     --text-color: #FCF1F6;
     --title-color: #AD1A72;
@@ -46,10 +46,8 @@
     background-position: var(--bg-image-position);
     background-size: var(--bg-image-size);
     background-repeat: no-repeat;
-    transition: background-position 0.3s ease, background-size 0.3s ease;
+    transition: background-position 0.3s ease, background-size 0.3s ease, background-color 0.5s ease;
   }
-
-  /* Focus mode hiding tabs */
   #app.focus-mode .tab-bar,
   #app.focus-mode .tab-content > :not(.tab-active) {
     display: none;
@@ -62,7 +60,7 @@
   /* Tab bar */
   .tab-bar {
     display: flex;
-    background: rgba(173, 26, 114, 0.2);
+    background: rgba(173, 26, 114, 0.25);
     height: var(--tab-bar-height);
     align-items: center;
     position: relative;
@@ -76,6 +74,7 @@
     cursor: pointer;
     font-size: 1.1rem;
     transition: background-color 0.3s ease;
+    user-select: none;
   }
   .tab-bar button:hover,
   .tab-bar button.active {
@@ -87,9 +86,9 @@
   #focus-toggle {
     position: absolute;
     left: 0.5rem;
-    top: -2.5rem;
+    top: -2.8rem;
     cursor: pointer;
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: var(--title-color);
     background: transparent;
     border: none;
@@ -103,9 +102,9 @@
   .tab-content {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 0.8rem 1rem;
+    padding: 1rem 1.2rem 1rem 1.2rem;
     background: rgba(255 255 255 / 0.05);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(7px);
     color: var(--text-color);
   }
   .tab {
@@ -115,7 +114,7 @@
     display: block;
   }
 
-  /* Common outline transparent rectangle with blur */
+  /* Transparent outline rectangle with light blur */
   .outline-rect {
     background: rgba(255 255 255 / 0.1);
     backdrop-filter: blur(8px);
@@ -137,90 +136,1495 @@
     border-radius: 10px;
   }
 
-  /* Add your styles for other parts (to-do, timers, music, AI chat, games, etc.) below ... */
+  /* To-Do List styles */
+  #todo-list {
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .task-item {
+    display: flex;
+    align-items: center;
+    margin: 0.3rem 0;
+    padding: 0.3rem 0.5rem;
+    border-radius: 5px;
+    cursor: grab;
+    user-select: none;
+  }
+  .task-item.dragging {
+    opacity: 0.5;
+  }
+  .task-text {
+    flex-grow: 1;
+    padding-left: 0.5rem;
+    color: var(--text-color);
+    font-size: 1rem;
+  }
+  .task-subtask {
+    padding-left: 1.8rem;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #D9B4D9;
+  }
+  .bullet {
+    cursor: pointer;
+    font-size: 1.2rem;
+    user-select: none;
+  }
+  .bullet-heart-outline::before {
+    content: "\2661"; /* ♡ */
+  }
+  .bullet-heart-filled::before {
+    content: "\2665"; /* ♥ */
+    color: #AD1A72;
+  }
+  .bullet-star-outline::before {
+    content: "\2606"; /* ☆ */
+  }
+  .bullet-star-filled::before {
+    content: "\2605"; /* ★ */
+    color: #AD1A72;
+  }
+  .task-completed .task-text {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+  .remove-task-btn {
+    margin-left: 0.6rem;
+    cursor: pointer;
+    font-weight: 700;
+    color: #f87171;
+    user-select: none;
+  }
+  .remove-task-btn:hover {
+    color: #ef4444;
+  }
+
+  /* Task input and type selector */
+  #new-task-container {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+  #new-task-input {
+    flex-grow: 1;
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--outline-color);
+    background: rgba(255 255 255 / 0.2);
+    color: var(--text-color);
+  }
+  #task-type-btn {
+    margin-left: 0.6rem;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--title-color);
+  }
+  #task-type-btn:hover {
+    color: #F472B6;
+  }
+  #clear-tasks-btn {
+    margin-top: 0.6rem;
+    background: transparent;
+    border: 1px solid #f87171;
+    color: #f87171;
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    font-weight: 700;
+    user-select: none;
+  }
+  #clear-tasks-btn:hover {
+    background: #f87171;
+    color: white;
+  }
+
+  /* Timers, Pomodoro, Music, AI Chat, Games, Settings styling will come later */
+  /* For now basic placeholders */
+
+  /* Light/Dark mode horizontal switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 32px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 16px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px; width: 26px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #AD1A72;
+  }
+  input:checked + .slider:before {
+    transform: translateX(38px);
+  }
+  .switch-labels {
+    position: absolute;
+    width: 70px;
+    top: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8px;
+    color: white;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Cute sun and moon icons for light/dark toggle */
+  .icon-sun, .icon-moon {
+    width: 20px;
+    height: 20px;
+    fill: #FFD700;
+  }
+  .icon-moon {
+    fill: #E0BBE4;
+  }
+
+  /* Music Player styles */
+  #music-now-playing {
+    display: flex;
+    align-items: center;
+    background: rgba(173, 26, 114, 0.4);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-color);
+    font-weight: 700;
+    user-select: none;
+  }
+  #music-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.3rem;
+    object-fit: cover;
+    margin-right: 0.8rem;
+    background: rgba(255 255 255 / 0.2);
+  }
+  #music-info {
+    flex-grow: 1;
+  }
+  #music-title {
+    font-size: 1rem;
+    margin: 0;
+  }
+  #music-duration {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+  #music-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0.6rem;
+  }
+  .music-btn {
+    background: transparent;
+    border: none;
+    color: var(--title-color);
+    cursor: pointer;
+    font-size: 1.3rem;
+  }
+  .music-btn:hover {
+    color: #F472B6;
+  }
+  #music-progress-container {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: rgba(255 255 255 / 0.15);
+    border-radius: 3px;
+    cursor: pointer;
+    margin: 0.4rem 0;
+  }
+  #music-progress {
+    position: absolute;
+    height: 6px;
+    background: var(--title-color);
+    border-radius: 3px;
+    width: 0%;
+  }
+  #music-queue {
+    max-height: 180px;
+    overflow-y: auto;
+    border-top: 1px solid var(--outline-color);
+    margin-top: 0.6rem;
+  }
+  .queue-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--outline-color);
+  }
+  .queue-item:hover {
+    background: rgba(173, 26, 114, 0.1);
+  }
+  .queue-item .remove-queue-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    user-select: none;
+    color: #f87171;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .queue-item:hover .remove-queue-btn {
+    opacity: 1;
+  }
+  #music-library {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .library-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0.6rem;
+    border-bottom: 1px solid var(--outline-color);
+    cursor: pointer;
+  }
+  .library-item:hover {
+    background: rgba(173, 26, 114, 0.1);
+  }
+  .library-item .remove-library-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    user-select: none;
+    color: #f87171;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .library-item:hover .remove-library-btn {
+    opacity: 1;
+  }
+  #music-upload-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    background: var(--title-color);
+    border: none;
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+    line-height: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--title-color);
+    user-select: none;
+    z-index: 1000;
+  }
+  #music-upload-btn:hover {
+    background: #F472B6;
+    box-shadow: 0 0 12px #F472B6;
+  }
+  #music-upload-input {
+    display: none;
+  }
+
+  /* Queue overlay */
+  #queue-overlay {
+    position: fixed;
+    bottom: 70px;
+    left: 15px;
+    width: 300px;
+    max-height: 300px;
+    background: rgba(43, 27, 52, 0.9);
+    border-radius: 10px;
+    overflow-y: auto;
+    padding: 0.6rem;
+    box-shadow: 0 0 15px #AD1A72;
+    display: none;
+    z-index: 1001;
+  }
+
+  /* Mini Games tab styles */
+  #games-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .game-card {
+    background: rgba(173, 26, 114, 0.15);
+    border-radius: 8px;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--title-color);
+    font-weight: 700;
+    user-select: none;
+    box-shadow: 0 0 6px rgba(173,26,114,0.3);
+  }
+  .game-card:hover {
+    background: rgba(173, 26, 114, 0.35);
+  }
+  #game-back-btn {
+    margin-bottom: 0.8rem;
+    background: transparent;
+    border: 1px solid var(--title-color);
+    color: var(--title-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #game-container {
+    background: rgba(43, 27, 52, 0.9);
+    border-radius: 10px;
+    padding: 1rem;
+    color: var(--text-color);
+    min-height: 300px;
+  }
+
+  /* AI chat styles */
+  #ai-chat-window {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    background: rgba(43, 27, 52, 0.85);
+    border-radius: 10px;
+    padding: 0.8rem;
+    color: var(--text-color);
+  }
+  #ai-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+  .ai-message {
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+  }
+  .ai-message.user {
+    background: rgba(255 255 255 / 0.15);
+    align-self: flex-end;
+  }
+  .ai-message.bot {
+    background: rgba(173, 26, 114, 0.3);
+    align-self: flex-start;
+  }
+  #ai-input-container {
+    display: flex;
+  }
+  #ai-input {
+    flex-grow: 1;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px 0 0 6px;
+    border: none;
+    font-size: 1rem;
+  }
+  #ai-send-btn {
+    background: var(--title-color);
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0 1rem;
+    font-weight: 700;
+    border-radius: 0 6px 6px 0;
+  }
+  #ai-send-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  #ai-character-select {
+    margin-bottom: 0.6rem;
+    display: flex;
+    gap: 10px;
+  }
+  .character-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  .character-icon.selected {
+    border-color: var(--title-color);
+  }
+  .character-icon img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  /* Settings tab */
+  #settings-container {
+    max-width: 400px;
+  }
+  #settings-container label {
+    display: block;
+    margin: 0.8rem 0 0.2rem 0;
+    font-weight: 700;
+  }
+  #settings-container input[type=color],
+  #settings-container input[type=text],
+  #settings-container input[type=number],
+  #settings-container select {
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid var(--outline-color);
+    background: rgba(255 255 255 / 0.1);
+    color: var(--text-color);
+  }
+  #settings-container .color-wheel-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #settings-container button {
+    margin-top: 1rem;
+    padding: 0.4rem 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    border: none;
+    background: var(--title-color);
+    color: var(--text-color);
+    cursor: pointer;
+  }
+  #settings-container button:hover {
+    background: #F472B6;
+  }
+
+  /* Background reposition */
+  #bg-reposition-container {
+    margin-top: 1rem;
+    position: relative;
+    user-select: none;
+  }
+  #bg-reposition-img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: grab;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+  #bg-reposition-controls {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  #bg-reposition-controls button {
+    flex: 1;
+    margin: 0 0.3rem;
+    cursor: pointer;
+  }
+
 </style>
 </head>
 <body>
 <div id="app">
   <button id="focus-toggle" title="Toggle Focus Mode">⛶</button>
-  <nav class="tab-bar" role="tablist" aria-label="Main tabs">
-    <button class="tab-btn active" data-tab="todo" role="tab" aria-selected="true">To-Do</button>
-    <button class="tab-btn" data-tab="timers" role="tab" aria-selected="false">Timers</button>
-    <button class="tab-btn" data-tab="pomodoro" role="tab" aria-selected="false">Pomodoro</button>
-    <button class="tab-btn" data-tab="music" role="tab" aria-selected="false">Music</button>
-    <button class="tab-btn" data-tab="ai" role="tab" aria-selected="false">AI Chat</button>
-    <button class="tab-btn" data-tab="games" role="tab" aria-selected="false">Games</button>
-    <button class="tab-btn" data-tab="settings" role="tab" aria-selected="false">Settings</button>
-  </nav>
+  <div class="tab-bar" role="tablist" aria-label="Main tabs">
+    <button role="tab" aria-selected="true" aria-controls="tab-todo" id="tab-btn-todo" class="active">To-Do</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-timers" id="tab-btn-timers">Timers</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-pomodoro" id="tab-btn-pomodoro">Pomodoro</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-music" id="tab-btn-music">Music</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-ai" id="tab-btn-ai">AI Chat 🤖</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-games" id="tab-btn-games">Games</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-settings" id="tab-btn-settings">Settings ⚙️</button>
+  </div>
 
-  <main class="tab-content" role="tabpanel">
-    <section id="todo" class="tab tab-active" aria-label="To-Do List">
-      <!-- To-Do interface content here -->
-      <div class="outline-rect">
-        <!-- To-Do List UI & features with draggable tasks, hearts/stars, subtasks, etc. -->
-        <!-- ... -->
+  <div class="tab-content">
+    <!-- To-Do List -->
+    <section class="tab tab-active" id="tab-todo" role="tabpanel" aria-labelledby="tab-btn-todo">
+      <div class="outline-rect" aria-label="To-Do List Container">
+        <div id="todo-list" aria-live="polite" aria-relevant="additions removals"></div>
+        <div id="new-task-container">
+          <button id="task-type-btn" aria-label="Toggle task type (Main/Subtask)" title="Toggle task type">♡</button>
+          <input type="text" id="new-task-input" placeholder="Add new task..." aria-label="New task input" autocomplete="off" />
+        </div>
+        <button id="clear-tasks-btn" aria-label="Clear all tasks">Clear All Tasks</button>
       </div>
     </section>
 
-    <section id="timers" class="tab" aria-label="Timers">
-      <!-- Timer, Stopwatch, Countdown, Pomodoro interfaces -->
-      <!-- ... -->
+    <!-- Timers -->
+    <section class="tab" id="tab-timers" role="tabpanel" aria-labelledby="tab-btn-timers">
+      <div class="outline-rect" aria-label="Timers Container">
+        <div id="timers-list"></div>
+        <div id="new-timer-container" style="margin-top:1rem;">
+          <input type="text" id="new-timer-title" placeholder="Timer title" />
+          <input type="datetime-local" id="new-timer-datetime" />
+          <button id="add-timer-btn">Add Countdown Timer</button>
+          <button id="clear-timers-btn" style="margin-left:0.8rem; background:#f87171; color:white;">Clear All Timers</button>
+        </div>
+      </div>
     </section>
 
-    <section id="pomodoro" class="tab" aria-label="Pomodoro Timer">
-      <!-- Pomodoro timer UI and controls -->
-      <!-- ... -->
+    <!-- Pomodoro -->
+    <section class="tab" id="tab-pomodoro" role="tabpanel" aria-labelledby="tab-btn-pomodoro">
+      <div class="outline-rect" aria-label="Pomodoro Timer Container">
+        <div id="pomodoro-timer" style="font-size: 2rem; text-align:center; margin-bottom:1rem;">25:00</div>
+        <div style="text-align:center;">
+          <button id="pomodoro-start">Start</button>
+          <button id="pomodoro-pause">Pause</button>
+          <button id="pomodoro-reset">Reset</button>
+        </div>
+      </div>
     </section>
 
-    <section id="music" class="tab" aria-label="Music Player">
-      <!-- Music Player interface, now playing bar, queue, library, upload + URL add, playlists -->
-      <!-- ... -->
+    <!-- Music -->
+    <section class="tab" id="tab-music" role="tabpanel" aria-labelledby="tab-btn-music">
+      <div class="outline-rect" aria-label="Music Player Container">
+        <div id="music-now-playing" aria-live="polite" aria-atomic="true">
+          <img id="music-cover" src="" alt="Cover art" />
+          <div id="music-info">
+            <p id="music-title">No music playing</p>
+            <p id="music-duration"></p>
+            <div id="music-progress-container" aria-label="Music progress bar" tabindex="0">
+              <div id="music-progress"></div>
+            </div>
+          </div>
+          <div id="music-controls">
+            <button class="music-btn" id="music-play-pause" aria-label="Play/Pause">&#9658;</button>
+            <button class="music-btn" id="music-prev" aria-label="Previous">&#9664;&#9664;</button>
+            <button class="music-btn" id="music-next" aria-label="Next">&#9654;&#9654;</button>
+            <button class="music-btn" id="music-shuffle" aria-label="Shuffle">&#128256;</button>
+            <button class="music-btn" id="music-repeat" aria-label="Repeat">&#128257;</button>
+          </div>
+        </div>
+
+        <div id="music-library"></div>
+
+        <button id="music-upload-btn" title="Upload audio file">+</button>
+        <input type="file" id="music-upload-input" accept="audio/*" multiple />
+
+        <div id="queue-overlay" aria-label="Music play queue"></div>
+      </div>
     </section>
 
-    <section id="ai" class="tab" aria-label="AI Chat">
-      <!-- AI chat UI with character switching and chat window -->
-      <!-- ... -->
+    <!-- AI Chat -->
+    <section class="tab" id="tab-ai" role="tabpanel" aria-labelledby="tab-btn-ai">
+      <div class="outline-rect" aria-label="AI Chat Container">
+        <div id="ai-character-select" role="radiogroup" aria-label="Select AI Character">
+          <div class="character-icon selected" data-char="robot" role="radio" aria-checked="true" tabindex="0" title="Robot">
+            <img src="https://cdn-icons-png.flaticon.com/512/4715/4715433.png" alt="Robot Icon" />
+          </div>
+          <div class="character-icon" data-char="cat" role="radio" aria-checked="false" tabindex="-1" title="Cat">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Cat Icon" />
+          </div>
+          <div class="character-icon" data-char="bunny" role="radio" aria-checked="false" tabindex="-1" title="Bunny">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Bunny Icon" />
+          </div>
+          <div class="character-icon" data-char="dog" role="radio" aria-checked="false" tabindex="-1" title="Dog">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Dog Icon" />
+          </div>
+          <div class="character-icon" data-char="chick" role="radio" aria-checked="false" tabindex="-1" title="Chick">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Chick Icon" />
+          </div>
+          <div class="character-icon" data-char="pink-tiger" role="radio" aria-checked="false" tabindex="-1" title="Pink Tiger">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Pink Tiger Icon" />
+          </div>
+        </div>
+        <div id="ai-chat-window" role="log" aria-live="polite"></div>
+        <div id="ai-input-container">
+          <input id="ai-input" type="text" placeholder="Ask me anything..." aria-label="AI chat input" />
+          <button id="ai-send-btn" aria-label="Send message">Send</button>
+        </div>
+      </div>
     </section>
 
-    <section id="games" class="tab" aria-label="Mini Games">
-      <!-- Mini-games tab content and game canvas -->
-      <!-- ... -->
+    <!-- Games -->
+    <section class="tab" id="tab-games" role="tabpanel" aria-labelledby="tab-btn-games">
+      <div class="outline-rect" aria-label="Mini Games Container">
+        <button id="game-back-btn" style="display:none;">Back to Games</button>
+        <div id="games-list">
+          <div class="game-card" data-game="tic-tac-toe">Tic Tac Toe</div>
+          <div class="game-card" data-game="memory">Memory Game</div>
+          <div class="game-card" data-game="snake">Snake</div>
+          <div class="game-card" data-game="clicker">Clicker</div>
+        </div>
+        <div id="game-container" tabindex="0"></div>
+      </div>
     </section>
 
-    <section id="settings" class="tab" aria-label="Settings">
-      <!-- Settings for themes, colors, dimensions, background, alarms, etc -->
-      <!-- ... -->
+    <!-- Settings -->
+    <section class="tab" id="tab-settings" role="tabpanel" aria-labelledby="tab-btn-settings">
+      <div id="settings-container" class="outline-rect" aria-label="Settings Container">
+        <label for="theme-select">Theme</label>
+        <select id="theme-select" aria-label="Select Light or Dark theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+
+        <label for="title-color-input">Title Color</label>
+        <input type="color" id="title-color-input" aria-label="Choose title color" value="#AD1A72" />
+
+        <label for="text-color-input">Text Color</label>
+        <input type="color" id="text-color-input" aria-label="Choose text color" value="#FCF1F6" />
+
+        <label for="outline-color-input">Outline Rectangle Color</label>
+        <input type="color" id="outline-color-input" aria-label="Choose outline rectangle color" value="#AD1A72" />
+
+        <label for="bg-image-url">Background Image URL</label>
+        <input type="text" id="bg-image-url" aria-label="Enter background image URL" placeholder="Paste image URL here..." />
+
+        <label>Background Size</label>
+        <select id="bg-size-select" aria-label="Select background size">
+          <option value="cover" selected>Cover</option>
+          <option value="contain">Contain</option>
+          <option value="auto">Auto</option>
+        </select>
+
+        <label>Background Position</label>
+        <select id="bg-position-select" aria-label="Select background position">
+          <option value="center center" selected>Center</option>
+          <option value="top center">Top</option>
+          <option value="bottom center">Bottom</option>
+          <option value="left center">Left</option>
+          <option value="right center">Right</option>
+        </select>
+
+        <label>Widget Orientation</label>
+        <select id="orientation-select" aria-label="Select widget orientation">
+          <option value="landscape" selected>Landscape</option>
+          <option value="portrait">Portrait</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        <label for="custom-width-input">Custom Width (px)</label>
+        <input type="number" id="custom-width-input" min="300" max="1920" aria-label="Set custom widget width" value="800" />
+
+        <label for="custom-height-input">Custom Height (px)</label>
+        <input type="number" id="custom-height-input" min="300" max="1080" aria-label="Set custom widget height" value="600" />
+
+        <button id="apply-settings-btn">Apply Settings</button>
+      </div>
+      <div id="bg-reposition-container" aria-label="Background reposition container" style="display:none;">
+        <img id="bg-reposition-img" alt="Background Reposition" />
+        <div id="bg-reposition-controls">
+          <button id="bg-reposition-cancel">Cancel</button>
+          <button id="bg-reposition-save">Save</button>
+        </div>
+      </div>
     </section>
-  </main>
+  </div>
 </div>
 
 <script>
-  // Basic tab switching logic
-  const tabs = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab');
+(() => {
+  // Utility
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
+  const app = $('#app');
+  const tabs = $$('.tab-bar button');
+  const tabContents = $$('.tab');
+  const focusToggleBtn = $('#focus-toggle');
+
+  // -- TAB SWITCHING --
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
       tabs.forEach(t => {
         t.classList.remove('active');
         t.setAttribute('aria-selected', 'false');
       });
-      tabContents.forEach(tc => tc.classList.remove('tab-active'));
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      const tabId = tab.getAttribute('data-tab');
-      document.getElementById(tabId).classList.add('tab-active');
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const tabId = btn.getAttribute('aria-controls');
+      tabContents.forEach(tc => {
+        tc.classList.toggle('tab-active', tc.id === tabId);
+      });
     });
   });
 
-  // Focus Mode Toggle
-  const app = document.getElementById('app');
-  const focusToggleBtn = document.getElementById('focus-toggle');
+  // -- FOCUS MODE --
+  let focusMode = false;
   focusToggleBtn.addEventListener('click', () => {
-    app.classList.toggle('focus-mode');
+    focusMode = !focusMode;
+    app.classList.toggle('focus-mode', focusMode);
   });
 
-  // Placeholder for other JS functions: timers, to-do list, music player, AI chat, games, settings
+  // ----------------- TO-DO LIST -----------------
+  const todoListEl = $('#todo-list');
+  const newTaskInput = $('#new-task-input');
+  const taskTypeBtn = $('#task-type-btn');
+  const clearTasksBtn = $('#clear-tasks-btn');
+
+  let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  // Each task: {id, text, type: 'main' | 'sub', completed, dueDate (nullable)}
+
+  // Save tasks
+  function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+  // Render tasks from array
+  function renderTasks() {
+    todoListEl.innerHTML = '';
+    tasks.forEach(task => {
+      const taskEl = document.createElement('div');
+      taskEl.className = 'task-item';
+      if(task.completed) taskEl.classList.add('task-completed');
+      taskEl.draggable = true;
+      taskEl.dataset.id = task.id;
+      // Bullet point
+      const bullet = document.createElement('span');
+      bullet.classList.add('bullet');
+      if(task.type === 'main') {
+        bullet.classList.add(task.completed ? 'bullet-heart-filled' : 'bullet-heart-outline');
+      } else {
+        bullet.classList.add(task.completed ? 'bullet-star-filled' : 'bullet-star-outline');
+      }
+      bullet.tabIndex = 0;
+      bullet.setAttribute('role', 'button');
+      bullet.setAttribute('aria-pressed', task.completed);
+      bullet.addEventListener('click', () => {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+      });
+      bullet.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          bullet.click();
+        }
+      });
+      // Text
+      const textSpan = document.createElement('span');
+      textSpan.className = 'task-text';
+      textSpan.textContent = task.text;
+      if(task.type === 'sub') textSpan.classList.add('task-subtask');
+
+      // Due date placeholder & edit
+      const dueDateSpan = document.createElement('span');
+      dueDateSpan.style.marginLeft = '8px';
+      dueDateSpan.style.fontSize = '0.8rem';
+      dueDateSpan.style.opacity = '0.6';
+      dueDateSpan.style.cursor = 'pointer';
+      dueDateSpan.title = task.dueDate ? `Due: ${task.dueDate}` : 'Click to set due date';
+      dueDateSpan.textContent = task.dueDate ? `Due: ${task.dueDate}` : '[Add Due Date]';
+      dueDateSpan.tabIndex = 0;
+      dueDateSpan.setAttribute('role', 'button');
+      dueDateSpan.addEventListener('click', () => {
+        const newDate = prompt('Enter due date (YYYY-MM-DD)', task.dueDate || '');
+        if(newDate !== null) {
+          if(newDate.trim() === '') {
+            task.dueDate = null;
+          } else {
+            task.dueDate = newDate.trim();
+          }
+          saveTasks();
+          renderTasks();
+        }
+      });
+      dueDateSpan.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dueDateSpan.click();
+        }
+      });
+
+      // Remove task button
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-task-btn';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remove task';
+      removeBtn.setAttribute('aria-label', 'Remove task');
+      removeBtn.addEventListener('click', () => {
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks();
+        renderTasks();
+      });
+
+      // Append children
+      taskEl.appendChild(bullet);
+      taskEl.appendChild(textSpan);
+      taskEl.appendChild(dueDateSpan);
+      taskEl.appendChild(removeBtn);
+      todoListEl.appendChild(taskEl);
+    });
+  }
+  renderTasks();
+
+  // Drag and drop reorder
+  let draggedTaskId = null;
+  todoListEl.addEventListener('dragstart', e => {
+    const id = e.target.dataset.id;
+    if(id) {
+      draggedTaskId = id;
+      e.dataTransfer.effectAllowed = 'move';
+      e.target.classList.add('dragging');
+    }
+  });
+  todoListEl.addEventListener('dragend', e => {
+    e.target.classList.remove('dragging');
+    draggedTaskId = null;
+  });
+  todoListEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.task-item');
+    if(target && draggedTaskId && target.dataset.id !== draggedTaskId) {
+      const draggedIndex = tasks.findIndex(t => t.id === draggedTaskId);
+      const targetIndex = tasks.findIndex(t => t.id === target.dataset.id);
+      if(draggedIndex >= 0 && targetIndex >= 0) {
+        tasks.splice(targetIndex, 0, tasks.splice(draggedIndex,1)[0]);
+        saveTasks();
+        renderTasks();
+      }
+    }
+  });
+
+  // Add new task
+  let newTaskType = 'main';
+  taskTypeBtn.addEventListener('click', () => {
+    if(newTaskType === 'main') {
+      newTaskType = 'sub';
+      taskTypeBtn.textContent = '★';
+      taskTypeBtn.title = 'Subtask';
+    } else {
+      newTaskType = 'main';
+      taskTypeBtn.textContent = '♡';
+      taskTypeBtn.title = 'Main task';
+    }
+  });
+  newTaskInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && newTaskInput.value.trim()) {
+      e.preventDefault();
+      addNewTask(newTaskInput.value.trim(), newTaskType);
+      newTaskInput.value = '';
+    }
+  });
+  function addNewTask(text, type) {
+    tasks.push({id: Date.now().toString(), text, type, completed: false, dueDate: null});
+    saveTasks();
+    renderTasks();
+  }
+
+  clearTasksBtn.addEventListener('click', () => {
+    if(confirm('Are you sure you want to clear all tasks?')) {
+      tasks = [];
+      saveTasks();
+      renderTasks();
+    }
+  });
+
+  // ------------- TIMERS ----------------
+  const timersList = $('#timers-list');
+  const addTimerBtn = $('#add-timer-btn');
+  const clearTimersBtn = $('#clear-timers-btn');
+  const newTimerTitle = $('#new-timer-title');
+  const newTimerDateTime = $('#new-timer-datetime');
+  let timers = JSON.parse(localStorage.getItem('timers') || '[]');
+  // timers: {id, title, datetime, active}
+
+  function saveTimers() {
+    localStorage.setItem('timers', JSON.stringify(timers));
+  }
+
+  function renderTimers() {
+    timersList.innerHTML = '';
+    const now = new Date();
+    timers.forEach(timer => {
+      const container = document.createElement('div');
+      container.style.marginBottom = '0.8rem';
+      const title = document.createElement('strong');
+      title.textContent = timer.title;
+      const timeLeft = new Date(timer.datetime) - now;
+      const countdown = document.createElement('div');
+      countdown.style.fontWeight = '700';
+      countdown.style.marginTop = '0.3rem';
+      countdown.textContent = timeLeft > 0 ? formatMs(timeLeft) : '⏰ Time reached!';
+
+      // Remove button
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'Remove';
+      removeBtn.style.marginLeft = '0.5rem';
+      removeBtn.style.background = 'transparent';
+      removeBtn.style.border = '1px solid #f87171';
+      removeBtn.style.color = '#f87171';
+      removeBtn.style.borderRadius = '4px';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.addEventListener('click', () => {
+        timers = timers.filter(t => t.id !== timer.id);
+        saveTimers();
+        renderTimers();
+      });
+
+      container.appendChild(title);
+      container.appendChild(countdown);
+      container.appendChild(removeBtn);
+      timersList.appendChild(container);
+    });
+  }
+  function formatMs(ms) {
+    if(ms < 0) return '0s';
+    let s = Math.floor(ms / 1000);
+    const days = Math.floor(s / 86400);
+    s %= 86400;
+    const hrs = Math.floor(s / 3600);
+    s %= 3600;
+    const mins = Math.floor(s / 60);
+    s %= 60;
+    let out = '';
+    if(days) out += `${days}d `;
+    if(hrs) out += `${hrs}h `;
+    if(mins) out += `${mins}m `;
+    out += `${s}s`;
+    return out.trim();
+  }
+  addTimerBtn.addEventListener('click', () => {
+    const title = newTimerTitle.value.trim();
+    const dtStr = newTimerDateTime.value;
+    if(!title) {
+      alert('Please enter a timer title.');
+      return;
+    }
+    if(!dtStr) {
+      alert('Please select a date and time.');
+      return;
+    }
+    const dt = new Date(dtStr);
+    if(isNaN(dt.getTime())) {
+      alert('Invalid date/time.');
+      return;
+    }
+    timers.push({id: Date.now().toString(), title, datetime: dt.toISOString()});
+    saveTimers();
+    renderTimers();
+    newTimerTitle.value = '';
+    newTimerDateTime.value = '';
+  });
+  clearTimersBtn.addEventListener('click', () => {
+    if(confirm('Clear all timers?')) {
+      timers = [];
+      saveTimers();
+      renderTimers();
+    }
+  });
+  // Countdown interval for timers:
+  setInterval(() => {
+    if(timers.length) renderTimers();
+  }, 1000);
+
+  renderTimers();
+
+  // -------------- Pomodoro Timer ----------------
+  const pomodoroDisplay = $('#pomodoro-timer');
+  const pomodoroStartBtn = $('#pomodoro-start');
+  const pomodoroPauseBtn = $('#pomodoro-pause');
+  const pomodoroResetBtn = $('#pomodoro-reset');
+
+  let pomodoroSeconds = 25 * 60;
+  let pomodoroInterval = null;
+  let pomodoroRunning = false;
+
+  function updatePomodoroDisplay() {
+    const m = Math.floor(pomodoroSeconds / 60).toString().padStart(2,'0');
+    const s = (pomodoroSeconds % 60).toString().padStart(2,'0');
+    pomodoroDisplay.textContent = `${m}:${s}`;
+  }
+  pomodoroStartBtn.addEventListener('click', () => {
+    if(pomodoroRunning) return;
+    pomodoroRunning = true;
+    pomodoroInterval = setInterval(() => {
+      if(pomodoroSeconds > 0) {
+        pomodoroSeconds--;
+        updatePomodoroDisplay();
+      } else {
+        clearInterval(pomodoroInterval);
+        pomodoroRunning = false;
+        alert('Pomodoro complete! Time for a break!');
+      }
+    }, 1000);
+  });
+  pomodoroPauseBtn.addEventListener('click', () => {
+    pomodoroRunning = false;
+    clearInterval(pomodoroInterval);
+  });
+  pomodoroResetBtn.addEventListener('click', () => {
+    pomodoroRunning = false;
+    clearInterval(pomodoroInterval);
+    pomodoroSeconds = 25 * 60;
+    updatePomodoroDisplay();
+  });
+  updatePomodoroDisplay();
+
+  // ----------------- MUSIC PLAYER ------------------
+
+  // Music data structure
+  let musicLibrary = JSON.parse(localStorage.getItem('musicLibrary') || '[]');
+  let musicQueue = JSON.parse(localStorage.getItem('musicQueue') || '[]');
+  let musicRepeatMode = localStorage.getItem('musicRepeatMode') || 'none'; // none, one, all
+  let musicShuffle = JSON.parse(localStorage.getItem('musicShuffle') || 'false');
+  let currentTrackIndex = 0;
+  let audio = new Audio();
+
+  // DOM refs
+  const musicTitleEl = $('#music-title');
+  const musicDurationEl = $('#music-duration');
+  const musicCoverEl = $('#music-cover');
+  const musicPlayPauseBtn = $('#music-play-pause');
+  const musicPrevBtn = $('#music-prev');
+  const musicNextBtn = $('#music-next');
+  const musicShuffleBtn = $('#music-shuffle');
+  const musicRepeatBtn = $('#music-repeat');
+  const musicProgressContainer = $('#music-progress-container');
+  const musicProgressBar = $('#music-progress');
+  const musicLibraryEl = $('#music-library');
+  const musicUploadBtn = $('#music-upload-btn');
+  const musicUploadInput = $('#music-upload-input');
+  const queueOverlay = $('#queue-overlay');
+
+  function saveMusicState() {
+    localStorage.setItem('musicLibrary', JSON.stringify(musicLibrary));
+    localStorage.setItem('musicQueue', JSON.stringify(musicQueue));
+    localStorage.setItem('musicRepeatMode', musicRepeatMode);
+    localStorage.setItem('musicShuffle', JSON.stringify(musicShuffle));
+  }
+
+  function renderMusicLibrary() {
+    musicLibraryEl.innerHTML = '<h3>Library</h3>';
+    if(musicLibrary.length === 0) {
+      musicLibraryEl.innerHTML += '<p>No songs uploaded yet. Use + button below to add audio files.</p>';
+      return;
+    }
+    musicLibrary.forEach((song, i) => {
+      const div = document.createElement('div');
+      div.className = 'library-item';
+      div.textContent = song.title || `Song ${i+1}`;
+      div.tabIndex = 0;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-library-btn';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remove song from library';
+      removeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        if(confirm(`Remove "${song.title}" from library?`)) {
+          musicLibrary.splice(i, 1);
+          saveMusicState();
+          renderMusicLibrary();
+          if(currentTrackIndex >= musicLibrary.length) currentTrackIndex = 0;
+          updateNowPlaying();
+        }
+      });
+      div.appendChild(removeBtn);
+
+      div.addEventListener('click', () => {
+        addToQueue(i);
+      });
+      div.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          div.click();
+        }
+      });
+
+      musicLibraryEl.appendChild(div);
+    });
+  }
+
+  function renderQueue() {
+    if(musicQueue.length === 0) {
+      queueOverlay.style.display = 'none';
+      return;
+    }
+    queueOverlay.innerHTML = '<h4>Play Queue</h4>';
+    musicQueue.forEach((index, i) => {
+      const song = musicLibrary[index];
+      const div = document.createElement('div');
+      div.className = 'queue-item';
+      div.textContent = song.title || `Song ${index+1}`;
+      div.tabIndex = 0;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-queue-btn';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Remove from queue';
+      removeBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        musicQueue.splice(i, 1);
+        saveMusicState();
+        renderQueue();
+      });
+      div.appendChild(removeBtn);
+
+      div.addEventListener('click', () => {
+        playTrack(index);
+      });
+      div.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          div.click();
+        }
+      });
+
+      queueOverlay.appendChild(div);
+    });
+    queueOverlay.style.display = 'block';
+  }
+
+  function addToQueue(songIndex) {
+    musicQueue.push(songIndex);
+    saveMusicState();
+    renderQueue();
+  }
+
+  function updateNowPlaying() {
+    if(musicLibrary.length === 0) {
+      musicTitleEl.textContent = 'No music playing';
+      musicDurationEl.textContent = '';
+      musicCoverEl.src = '';
+      audio.pause();
+      return;
+    }
+    const songIndex = musicQueue.length > 0 ? musicQueue[0] : currentTrackIndex;
+    const song = musicLibrary[songIndex];
+    musicTitleEl.textContent = song.title || `Song ${songIndex+1}`;
+    musicDurationEl.textContent = formatDuration(audio.duration);
+    musicCoverEl.src = song.cover || '';
+
+    if(audio.src !== song.url) {
+      audio.src = song.url;
+      audio.load();
+    }
+  }
+
+  function formatDuration(sec) {
+    if(!sec || isNaN(sec)) return '';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2,'0')}`;
+  }
+
+  function playTrack(index) {
+    if(index < 0 || index >= musicLibrary.length) return;
+    currentTrackIndex = index;
+    updateNowPlaying();
+    audio.play();
+  }
+
+  musicPlayPauseBtn.addEventListener('click', () => {
+    if(audio.paused) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  });
+  audio.addEventListener('play', () => {
+    musicPlayPauseBtn.textContent = '❚❚';
+  });
+  audio.addEventListener('pause', () => {
+    musicPlayPauseBtn.textContent = '▶';
+  });
+  audio.addEventListener('timeupdate', () => {
+    const progressPercent = (audio.currentTime / audio.duration) * 100;
+    musicProgressBar.style.width = progressPercent + '%';
+    musicDurationEl.textContent = `${formatDuration(audio.currentTime)} / ${formatDuration(audio.duration)}`;
+  });
+  musicProgressContainer.addEventListener('click', e => {
+    const rect = musicProgressContainer.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    audio.currentTime = audio.duration * percentage;
+  });
+
+  musicPrevBtn.addEventListener('click', () => {
+    playPrevious();
+  });
+  musicNextBtn.addEventListener('click', () => {
+    playNext();
+  });
+  musicShuffleBtn.addEventListener('click', () => {
+    musicShuffle = !musicShuffle;
+    musicShuffleBtn.style.color = musicShuffle ? '#F472B6' : 'var(--title-color)';
+    saveMusicState();
+  });
+  musicRepeatBtn.addEventListener('click', () => {
+    if(musicRepeatMode === 'none') musicRepeatMode = 'all';
+    else if(musicRepeatMode === 'all') musicRepeatMode = 'one';
+    else musicRepeatMode = 'none';
+    musicRepeatBtn.textContent = musicRepeatMode === 'none' ? '🔁' : musicRepeatMode === 'all' ? '🔂' : '🔂';
+    saveMusicState();
+  });
+
+  function playNext() {
+    if(musicShuffle) {
+      currentTrackIndex = Math.floor(Math.random() * musicLibrary.length);
+    } else {
+      currentTrackIndex++;
+      if(currentTrackIndex >= musicLibrary.length) {
+        if(musicRepeatMode === 'all') {
+          currentTrackIndex = 0;
+        } else {
+          audio.pause();
+          currentTrackIndex = musicLibrary.length -1;
+          return;
+        }
+      }
+    }
+    updateNowPlaying();
+    audio.play();
+  }
+  function playPrevious() {
+    currentTrackIndex--;
+    if(currentTrackIndex < 0) currentTrackIndex = 0;
+    updateNowPlaying();
+    audio.play();
+  }
+
+  audio.addEventListener('ended', () => {
+    if(musicRepeatMode === 'one') {
+      audio.currentTime = 0;
+      audio.play();
+    } else {
+      playNext();
+    }
+  });
+
+  musicUploadBtn.addEventListener('click', () => {
+    musicUploadInput.click();
+  });
+  musicUploadInput.addEventListener('change', e => {
+    const files = Array.from(e.target.files);
+    files.forEach(file => {
+      const url = URL.createObjectURL(file);
+      musicLibrary.push({title: file.name, url, cover: ''});
+    });
+    saveMusicState();
+    renderMusicLibrary();
+    e.target.value = null;
+  });
+
+  renderMusicLibrary();
+  renderQueue();
+  updateNowPlaying();
+
+  // ------------- AI CHAT -----------------
+
+  const aiMessagesEl = $('#ai-chat-window');
+  const aiInput = $('#ai-input');
+  const aiSendBtn = $('#ai-send-btn');
+  const characterIcons = $$('#ai-character-select .character-icon');
+
+  let aiCharacter = 'robot'; // default
+  let aiChatLog = [];
+
+  characterIcons.forEach(icon => {
+    icon.addEventListener('click', () => {
+      characterIcons.forEach(ic => {
+        ic.classList.remove('selected');
+        ic.setAttribute('aria-checked', 'false');
+        ic.tabIndex = -1;
+      });
+      icon.classList.add('selected');
+      icon.setAttribute('aria-checked', 'true');
+      icon.tabIndex = 0;
+      aiCharacter = icon.dataset.char;
+      aiChatLog = [];
+      aiMessagesEl.innerHTML = '';
+    });
+    icon.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        icon.click();
+      }
+    });
+  });
+
+  function appendAIMessage(text, sender) {
+    const msgEl = document.createElement('div');
+    msgEl.className = `ai-message ${sender}`;
+    msgEl.textContent = text;
+    aiMessagesEl.appendChild(msgEl);
+    aiMessagesEl.scrollTop = aiMessagesEl.scrollHeight;
+  }
+
+  async function fakeAIResponse(message) {
+    // Simulated simple AI response for demo
+    const responses = {
+      robot: `🤖 I hear you: "${message}"`,
+      cat: `😺 Meow! You said: "${message}"`,
+      bunny: `🐰 Hop hop! You asked: "${message}"`,
+      dog: `🐶 Woof! You said: "${message}"`,
+      chick: `🐥 Tweet! You said: "${message}"`,
+      'pink-tiger': `🐯 Rawr! You said: "${message}"`
+    };
+    return new Promise(resolve => {
+      setTimeout(() => resolve(responses[aiCharacter] || responses.robot), 1200);
+    });
+  }
+
+  aiSendBtn.addEventListener('click', async () => {
+    const msg = aiInput.value.trim();
+    if(!msg) return;
+    appendAIMessage(msg, 'user');
+    aiInput.value = '';
+    aiSendBtn.disabled = true;
+
+    const reply = await fakeAIResponse(msg);
+    appendAIMessage(reply, 'bot');
+    aiSendBtn.disabled = false;
+  });
+
+  aiInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter') {
+      e.preventDefault();
+      aiSendBtn.click();
+    }
+  });
+
+  // ------------- Games --------------
+  const gamesList = $('#games-list');
+  const gameContainer = $('#game-container');
+  const gameBackBtn = $('#game-back-btn');
+
+  gamesList.addEventListener('click', e => {
+    const gameCard = e.target.closest('.game-card');
+    if(!gameCard) return;
+    const game = gameCard.dataset.game;
+    startGame(game);
+  });
+  gameBackBtn.addEventListener('click', () => {
+    gameContainer.innerHTML = '';
+    gameBackBtn.style.display = 'none';
+    gamesList.style.display = 'flex';
+  });
+
+  function startGame(game) {
+    gamesList.style.display = 'none';
+    gameBackBtn.style.display = 'block';
+    gameContainer.innerHTML = '';
+    switch(game) {
+      case 'tic-tac-toe': startTicTacToe(); break;
+      case 'memory': startMemoryGame(); break;
+      case 'snake': startSnake(); break;
+      case 'clicker': startClicker(); break;
+      default: gameContainer.textContent = 'Game not found';
+    }
+  }
+
+  // Dummy game implementations here (can be expanded)...
+
+  // ------------- Settings -------------
+  const themeSelect = $('#theme-select');
+  const titleColorInput = $('#title-color-input');
+  const textColorInput = $('#text-color-input');
+  const outlineColorInput = $('#outline-color-input');
+  const bgImageUrlInput = $('#bg-image-url');
+  const bgSizeSelect = $('#bg-size-select');
+  const bgPositionSelect = $('#bg-position-select');
+  const orientationSelect = $('#orientation-select');
+  const customWidthInput = $('#custom-width-input');
+  const customHeightInput = $('#custom-height-input');
+  const applySettingsBtn = $('#apply-settings-btn');
+  const bgRepositionContainer = $('#bg-reposition-container');
+  const bgRepositionImg = $('#bg-reposition-img');
+  const bgRepositionCancel = $('#bg-reposition-cancel');
+  const bgRepositionSave = $('#bg-reposition-save');
+
+  function applySettings() {
+    document.documentElement.style.setProperty('--title-color', titleColorInput.value);
+    document.documentElement.style.setProperty('--text-color', textColorInput.value);
+    document.documentElement.style.setProperty('--outline-color', outlineColorInput.value);
+    app.style.backgroundImage = bgImageUrlInput.value ? `url(${bgImageUrlInput.value})` : 'none';
+    app.style.backgroundSize = bgSizeSelect.value;
+    app.style.backgroundPosition = bgPositionSelect.value;
+    app.style.width = orientationSelect.value === 'custom' ? `${customWidthInput.value}px` : orientationSelect.value === 'portrait' ? '600px' : '800px';
+    app.style.height = orientationSelect.value === 'custom' ? `${customHeightInput.value}px` : orientationSelect.value === 'portrait' ? '800px' : '600px';
+
+    if(bgImageUrlInput.value) {
+      bgRepositionImg.src = bgImageUrlInput.value;
+      bgRepositionContainer.style.display = 'block';
+    } else {
+      bgRepositionContainer.style.display = 'none';
+    }
+
+    localStorage.setItem('settings', JSON.stringify({
+      titleColor: titleColorInput.value,
+      textColor: textColorInput.value,
+      outlineColor: outlineColorInput.value,
+      bgImageUrl: bgImageUrlInput.value,
+      bgSize: bgSizeSelect.value,
+      bgPosition: bgPositionSelect.value,
+      orientation: orientationSelect.value,
+      customWidth: customWidthInput.value,
+      customHeight: customHeightInput.value
+    }));
+  }
+
+  applySettingsBtn.addEventListener('click', applySettings);
+
+  // Load settings from localStorage
+  const savedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+  if(savedSettings.titleColor) titleColorInput.value = savedSettings.titleColor;
+  if(savedSettings.textColor) textColorInput.value = savedSettings.textColor;
+  if(savedSettings.outlineColor) outlineColorInput.value = savedSettings.outlineColor;
+  if(savedSettings.bgImageUrl) bgImageUrlInput.value = savedSettings.bgImageUrl;
+  if(savedSettings.bgSize) bgSizeSelect.value = savedSettings.bgSize;
+  if(savedSettings.bgPosition) bgPositionSelect.value = savedSettings.bgPosition;
+  if(savedSettings.orientation) orientationSelect.value = savedSettings.orientation;
+  if(savedSettings.customWidth) customWidthInput.value = savedSettings.customWidth;
+  if(savedSettings.customHeight) customHeightInput.value = savedSettings.customHeight;
+
+  applySettings();
+
+  // Background reposition drag
+  let draggingBg = false;
+  let dragStartY = 0;
+  let currentTop = 0;
+
+  bgRepositionImg.addEventListener('mousedown', e => {
+    draggingBg = true;
+    dragStartY = e.clientY;
+    bgRepositionImg.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', () => {
+    draggingBg = false;
+    bgRepositionImg.style.cursor = 'grab';
+  });
+  window.addEventListener('mousemove', e => {
+    if(draggingBg) {
+      const dy = e.clientY - dragStartY;
+      bgRepositionImg.style.top = `${currentTop + dy}px`;
+    }
+  });
+
+  bgRepositionCancel.addEventListener('click', () => {
+    bgRepositionImg.style.top = '0px';
+  });
+  bgRepositionSave.addEventListener('click', () => {
+    currentTop = parseInt(bgRepositionImg.style.top) || 0;
+    alert('Background position saved.');
+  });
+
+})();
 </script>
 </body>
 </html>
