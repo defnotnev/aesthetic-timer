@@ -3,75 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget</title>
+    <title>Notion Widget - To-Do List</title>
     <link rel="stylesheet" href="style.css">
     <script src="assets/icons/fontawesome.js" crossorigin="anonymous"></script>
 </head>
 <body data-theme="light">
 
 <header>
-    <h1>🎀 Notion Timer & To-Do Widget 🎀</h1>
+    <h1>🎀 Notion To-Do Widget 🎀</h1>
     <button id="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle theme" tabindex="0">
         <i class="fas fa-sun"></i>
     </button>
+    <button id="bg-toggle" aria-label="Change background" title="Change background" tabindex="0">
+        <i class="fas fa-image"></i>
+    </button>
+    <input type="color" id="text-color-picker" title="Change text color" value="#222222" style="margin-left:1em;">
 </header>
 
-<div id="tabs" role="tablist" aria-label="Widget Sections Tabs">
-    <button role="tab" aria-selected="true" id="tab-countdown" aria-controls="countdown-section" class="active">Countdowns</button>
-    <button role="tab" aria-selected="false" id="tab-timer" aria-controls="timer-section">Timers</button>
-    <button role="tab" aria-selected="false" id="tab-stopwatch" aria-controls="stopwatch-section">Stopwatch</button>
-    <button role="tab" aria-selected="false" id="tab-todo" aria-controls="todo-section">To-Do List</button>
-    <button role="tab" aria-selected="false" id="tab-settings" aria-controls="settings-section">Settings</button>
-</div>
-
 <main>
-    <section id="countdown-section" role="tabpanel" aria-labelledby="tab-countdown">
-        <h2>Countdowns</h2>
-        <input type="text" id="countdown-title" placeholder="Countdown Title">
-        <input type="datetime-local" id="countdown-date">
-        <button id="add-countdown">Add Countdown</button>
-        <div id="countdown-list"></div>
-    </section>
-
-    <section id="timer-section" role="tabpanel" aria-labelledby="tab-timer">
-        <h2>Timers</h2>
-        <input type="text" id="timer-title" placeholder="Timer Title">
-        <input type="number" id="timer-duration" placeholder="Duration (seconds)">
-        <button id="add-timer">Add Timer</button>
-        <div id="timer-list"></div>
-    </section>
-
-    <section id="stopwatch-section" role="tabpanel" aria-labelledby="tab-stopwatch">
-        <h2>Stopwatch</h2>
-        <button id="start-stopwatch">Start</button>
-        <button id="stop-stopwatch">Stop</button>
-        <button id="reset-stopwatch">Reset</button>
-        <div id="stopwatch-display">00:00:00</div>
-        <button id="add-punch">Add Punch</button>
-        <div id="punch-list"></div>
-    </section>
-
-    <section id="todo-section" role="tabpanel" aria-labelledby="tab-todo">
+    <section id="todo-section">
         <h2>To-Do List</h2>
-        <input type="text" id="todo-input" placeholder="Add a new task">
-        <button id="add-todo">Add Task</button>
+        <div id="task-input-row">
+            <button id="toggle-task-type" title="Toggle main/subtask" aria-label="Toggle main/subtask">
+                <i id="task-type-icon" class="far fa-heart"></i>
+            </button>
+            <input type="text" id="task-title-input" placeholder="Add a new task">
+            <button id="add-task">Add Task</button>
+        </div>
         <div id="todo-list"></div>
-    </section>
-
-    <section id="settings-section" role="tabpanel" aria-labelledby="tab-settings">
-        <h2>Settings</h2>
-        <label for="bg-upload">Background Image:</label>
-        <input type="file" id="bg-upload" accept="image/*">
-        <label for="text-color">Text Color:</label>
-        <input type="color" id="text-color" value="#FCF1F6">
-        <label for="title-color">Title Color:</label>
-        <input type="color" id="title-color" value="#AD1A72">
-        <label for="number-color">Number Color:</label>
-        <input type="color" id="number-color" value="#FCF1F6">
     </section>
 </main>
 
-<audio id="alarm-sound" preload="auto" src="https://cdn.pixabay.com/download/audio/2021/09/27/audio_f1b9b2.mp3"></audio>
+<template id="task-template">
+    <div class="task-row" draggable="true">
+        <span class="task-icon" tabindex="0"></span>
+        <input class="task-title" type="text" value="" readonly>
+        <span class="task-due-date">
+            <input type="date" class="due-date-input">
+        </span>
+        <span class="task-actions">
+            <button class="edit-task" title="Edit"><i class="fas fa-edit"></i></button>
+            <button class="delete-task" title="Delete"><i class="fas fa-times"></i></button>
+        </span>
+    </div>
+</template>
 
 <script src="script.js"></script>
 </body>
