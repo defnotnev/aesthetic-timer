@@ -5,6 +5,12 @@
   <title>Ultimate Notion Widget</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* CSS Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     :root {
       --main-color: #AD1A72;
       --bg-color: #fff;
@@ -181,6 +187,12 @@
     <!-- Content will be injected here -->
   </div>
   <script>
+    // JS Error Logging
+    window.onerror = function(message, source, lineno, colno, error) {
+      alert("Error: " + message + "\nLine: " + lineno + "\n" + source);
+      return false;
+    };
+
     // Tab switching logic
     const tabs = document.querySelectorAll('.tab');
     const widgetContent = document.getElementById('widget-content');
@@ -466,4 +478,8 @@
       else if (tab === 'timer') renderTimer();
       else if (tab === 'music') renderMusic();
       else if (tab === 'ai') renderAI();
-      else if (tab
+      else if (tab === 'settings') renderSettings();
+    }
+
+    // DOMContentLoaded: run after page loads
+    document.addEventListener('DOMContentLoaded', function()
