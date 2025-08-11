@@ -81,10 +81,51 @@
       border-radius: 12px;
       background: rgba(255,255,255,0.7);
       box-shadow: var(--shadow);
+      position: relative;
+      transition: box-shadow 0.2s;
     }
     .todo-checkbox {
       margin-right: 12px;
       accent-color: var(--main-color);
+    }
+    .favorite-icon, .star-icon {
+      cursor: pointer;
+      font-size: 1.3em;
+      margin-right: 8px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .todo-item button,
+    .todo-item input[type="date"] {
+      opacity: 0;
+      transition: opacity 0.2s;
+      position: relative;
+      z-index: 2;
+    }
+    .todo-item:hover button,
+    .todo-item:hover input[type="date"] {
+      opacity: 1;
+    }
+    .todo-item input[type="date"] {
+      width: auto;
+      margin-left: 8px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--main-color);
+      border-radius: 8px;
+      color: var(--main-color);
+      font-size: 0.95em;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    .todo-item ul {
+      margin-left: 32px;
+      list-style: none;
+      padding-left: 0;
+    }
+    .todo-item .todo-item {
+      background: rgba(255,255,255,0.5);
+      box-shadow: none;
+      font-size: 0.97em;
     }
     .timer-display {
       font-size: 2em;
@@ -117,7 +158,6 @@
       margin-left: 8px;
       outline: none;
     }
-    /* Responsive */
     @media (max-width: 600px) {
       #widget-content {
         margin: 8px;
@@ -162,33 +202,135 @@
       widgetContent.innerHTML = `
         <h2>To-Do List</h2>
         <input class="bubble-input" id="todo-input" placeholder="Type and press Enter to add..." />
+        <button class="bubble-input" id="todo-clear" style="float:right;margin-top:-40px;">Clear All</button>
         <ul class="todo-list" id="todo-list"></ul>
       `;
       const input = document.getElementById('todo-input');
       const list = document.getElementById('todo-list');
+      const clearBtn = document.getElementById('todo-clear');
+
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter' && input.value.trim()) {
-          todos.push({ text: input.value.trim(), done: false });
+          todos.push({
+            text: input.value.trim(),
+            done: false,
+            due: '',
+            subtasks: []
+          });
           input.value = '';
           renderTodo();
         }
+        // Add subtask with Tab
+        if (e.key === 'Tab' && input.value.trim()) {
+          e.preventDefault();
+          if (todos.length > 0) {
+            todos[todos.length - 1].subtasks.push({
+              text: input.value.trim(),
+              done: false
+            });
+            input.value = '';
+            renderTodo();
+          }
+        }
       });
+
+      clearBtn.onclick = () => {
+        todos = [];
+        renderTodo();
+      };
+
       todos.forEach((todo, idx) => {
         const li = document.createElement('li');
         li.className = 'todo-item';
+        li.draggable = true;
         li.innerHTML = `
-          <input type="checkbox" class="todo-checkbox" ${todo.done ? 'checked' : ''} />
-          <span style="flex:1;${todo.done ? 'text-decoration:line-through;' : ''}">${todo.text}</span>
+          <span class="favorite-icon" style="margin-right:8px;">
+            ${todo.done ? '♥︎' : '♡'}
+          </span>
+          <span class="editable" style="flex:1;${todo.done ? 'text-decoration:line-through;' : ''}">${todo.text}</span>
+          <input type="date" class="bubble-input" style="width:auto;margin-left:8px;" value="${todo.due}" />
           <button style="background:none;border:none;color:var(--main-color);font-size:1.2em;cursor:pointer;" title="Delete">&times;</button>
         `;
-        li.querySelector('.todo-checkbox').addEventListener('change', () => {
+
+        // Heart icon toggles completion
+        li.querySelector('.favorite-icon').addEventListener('click', () => {
           todos[idx].done = !todos[idx].done;
           renderTodo();
         });
+
+        // Inline editing
+        const editable = li.querySelector('.editable');
+        editable.addEventListener('dblclick', () => {
+          const editInput = document.createElement('input');
+          editInput.value = todo.text;
+          editInput.className = 'bubble-input';
+          editInput.onkeydown = ev => {
+            if (ev.key === 'Enter') {
+              todos[idx].text = editInput.value;
+              renderTodo();
+            }
+          };
+          editable.replaceWith(editInput);
+          editInput.focus();
+        });
+
+        // Due date
+        li.querySelector('input[type="date"]').addEventListener('change', e => {
+          todos[idx].due = e.target.value;
+        });
+
+        // Delete (invisible until hover)
         li.querySelector('button').addEventListener('click', () => {
           todos.splice(idx, 1);
           renderTodo();
         });
+
+        // Drag & drop
+        li.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', idx);
+        });
+        li.addEventListener('dragover', e => e.preventDefault());
+        li.addEventListener('drop', e => {
+          const from = Number(e.dataTransfer.getData('text/plain'));
+          const to = idx;
+          if (from !== to) {
+            const moved = todos.splice(from, 1)[0];
+            todos.splice(to, 0, moved);
+            renderTodo();
+          }
+        });
+
+        // Subtasks
+        if (todo.subtasks && todo.subtasks.length) {
+          const subList = document.createElement('ul');
+          subList.style.marginLeft = '32px';
+          subList.style.listStyle = 'none';
+          todo.subtasks.forEach((sub, subIdx) => {
+            const subLi = document.createElement('li');
+            subLi.className = 'todo-item';
+            subLi.style.background = 'rgba(255,255,255,0.5)';
+            subLi.innerHTML = `
+              <span class="star-icon" style="margin-right:8px;">
+                ${sub.done ? '★' : '☆'}
+              </span>
+              <span style="flex:1;${sub.done ? 'text-decoration:line-through;' : ''}">${sub.text}</span>
+              <button style="background:none;border:none;color:var(--main-color);font-size:1em;cursor:pointer;" title="Delete">&times;</button>
+            `;
+            // Star icon toggles completion
+            subLi.querySelector('.star-icon').addEventListener('click', () => {
+              todo.subtasks[subIdx].done = !todo.subtasks[subIdx].done;
+              renderTodo();
+            });
+            // Delete subtask
+            subLi.querySelector('button').addEventListener('click', () => {
+              todo.subtasks.splice(subIdx, 1);
+              renderTodo();
+            });
+            subList.appendChild(subLi);
+          });
+          li.appendChild(subList);
+        }
+
         list.appendChild(li);
       });
     }
@@ -314,8 +456,3 @@
       else if (tab === 'music') renderMusic();
       else if (tab === 'ai') renderAI();
       else if (tab === 'settings') renderSettings();
-    }
-    renderTab(currentTab);
-  </script>
-</body>
-</html>
