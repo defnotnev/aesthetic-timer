@@ -242,7 +242,8 @@
       todos.forEach((todo, idx) => {
         const li = document.createElement('li');
         li.className = 'todo-item';
-        li.draggable = true;
+        li.draggable = true; // Only main tasks are draggable
+
         li.innerHTML = `
           <span class="favorite-icon" style="margin-right:8px;">
             ${todo.done ? '♥︎' : '♡'}
@@ -253,19 +254,21 @@
         `;
 
         // Heart icon toggles completion
-        li.querySelector('.favorite-icon').addEventListener('click', () => {
+        li.querySelector('.favorite-icon').addEventListener('click', (ev) => {
+          ev.stopPropagation();
           todos[idx].done = !todos[idx].done;
           renderTodo();
         });
 
         // Inline editing
         const editable = li.querySelector('.editable');
-        editable.addEventListener('dblclick', () => {
+        editable.addEventListener('dblclick', (ev) => {
+          ev.stopPropagation();
           const editInput = document.createElement('input');
           editInput.value = todo.text;
           editInput.className = 'bubble-input';
-          editInput.onkeydown = ev => {
-            if (ev.key === 'Enter') {
+          editInput.onkeydown = ev2 => {
+            if (ev2.key === 'Enter') {
               todos[idx].text = editInput.value;
               renderTodo();
             }
@@ -280,17 +283,23 @@
         });
 
         // Delete (invisible until hover)
-        li.querySelector('button').addEventListener('click', () => {
+        li.querySelector('button').addEventListener('click', (ev) => {
+          ev.stopPropagation();
           todos.splice(idx, 1);
           renderTodo();
         });
 
-        // Drag & drop
+        // Drag & drop (main tasks only)
         li.addEventListener('dragstart', e => {
+          e.stopPropagation();
           e.dataTransfer.setData('text/plain', idx);
         });
-        li.addEventListener('dragover', e => e.preventDefault());
+        li.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
         li.addEventListener('drop', e => {
+          e.stopPropagation();
           const from = Number(e.dataTransfer.getData('text/plain'));
           const to = idx;
           if (from !== to) {
@@ -317,12 +326,14 @@
               <button style="background:none;border:none;color:var(--main-color);font-size:1em;cursor:pointer;" title="Delete">&times;</button>
             `;
             // Star icon toggles completion
-            subLi.querySelector('.star-icon').addEventListener('click', () => {
+            subLi.querySelector('.star-icon').addEventListener('click', (ev) => {
+              ev.stopPropagation();
               todo.subtasks[subIdx].done = !todo.subtasks[subIdx].done;
               renderTodo();
             });
             // Delete subtask
-            subLi.querySelector('button').addEventListener('click', () => {
+            subLi.querySelector('button').addEventListener('click', (ev) => {
+              ev.stopPropagation();
               todo.subtasks.splice(subIdx, 1);
               renderTodo();
             });
@@ -455,4 +466,4 @@
       else if (tab === 'timer') renderTimer();
       else if (tab === 'music') renderMusic();
       else if (tab === 'ai') renderAI();
-      else if (tab === 'settings') renderSettings();
+      else if (tab
