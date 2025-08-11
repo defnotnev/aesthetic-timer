@@ -187,28 +187,11 @@
     <!-- Content will be injected here -->
   </div>
   <script>
-    // JS Error Logging
-    window.onerror = function(message, source, lineno, colno, error) {
-      alert("Error: " + message + "\nLine: " + lineno + "\n" + source);
-      return false;
-    };
-
     // Tab switching logic
-    const tabs = document.querySelectorAll('.tab');
-    const widgetContent = document.getElementById('widget-content');
-    let currentTab = 'todo';
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentTab = tab.dataset.tab;
-        renderTab(currentTab);
-      });
-    });
-
-    // To-Do List
+    let tabs, widgetContent, currentTab = 'todo';
     let todos = [];
+    let timerInterval = null;
+    let timerSeconds = 0;
 
     function renderTodo() {
       widgetContent.innerHTML = `
@@ -358,10 +341,6 @@
       });
     }
 
-    // Timer
-    let timerInterval = null;
-    let timerSeconds = 0;
-
     function renderTimer() {
       widgetContent.innerHTML = `
         <h2>Timer</h2>
@@ -399,7 +378,6 @@
       return `${m}:${s}`;
     }
 
-    // Music Player (SoundCloud Embed)
     function renderMusic() {
       widgetContent.innerHTML = `
         <h2>Music Player</h2>
@@ -412,7 +390,6 @@
       document.getElementById('sc-embed').onclick = () => {
         const url = document.getElementById('sc-url').value.trim();
         if (url) {
-          // SoundCloud embed code
           document.getElementById('sc-player').innerHTML = `
             <iframe width="100%" height="166" scrolling="no" frameborder="no"
               allow="autoplay"
@@ -423,7 +400,6 @@
       };
     }
 
-    // AI Chat Placeholder
     function renderAI() {
       widgetContent.innerHTML = `
         <h2>🤖 AI Chat</h2>
@@ -441,7 +417,6 @@
           msg.textContent = "You: " + input.value;
           log.appendChild(msg);
           input.value = '';
-          // Placeholder: Add API call here for real AI response
           setTimeout(() => {
             const aiMsg = document.createElement('div');
             aiMsg.textContent = "🤖: (AI response here)";
@@ -451,7 +426,6 @@
       });
     }
 
-    // Settings
     function renderSettings() {
       widgetContent.innerHTML = `
         <h2>Settings</h2>
@@ -472,7 +446,6 @@
       };
     }
 
-    // Tab rendering
     function renderTab(tab) {
       if (tab === 'todo') renderTodo();
       else if (tab === 'timer') renderTimer();
@@ -481,5 +454,14 @@
       else if (tab === 'settings') renderSettings();
     }
 
-    // DOMContentLoaded: run after page loads
-    document.addEventListener('DOMContentLoaded', function()
+    document.addEventListener('DOMContentLoaded', function() {
+      tabs = document.querySelectorAll('.tab');
+      widgetContent = document.getElementById('widget-content');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentTab = tab.dataset.tab;
+          renderTab(currentTab);
+        });
+      });
