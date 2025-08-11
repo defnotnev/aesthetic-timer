@@ -1,228 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ultimate Notion Widget</title>
-  <style>
-    :root {
-      --title-color: #AD1A72;
-      --text-color: #AD1A72;
-      --outline-color: rgba(173, 26, 114, 0.15);
-      --background-color-light: #fff;
-      --background-color-dark: #1b1b1b;
-      --background-blur: rgba(255 255 255 / 0.1);
-      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    html, body {
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      font-family: var(--font-family);
-      background: var(--background-color-light);
-      color: var(--text-color);
-      user-select: none;
-      overflow: hidden;
-    }
-    body.dark {
-      background: var(--background-color-dark);
-      color: var(--text-color);
-    }
-    #app {
-      height: 100vh;
-      width: 100vw;
-      display: flex;
-      flex-direction: column;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-      position: relative;
-      overflow: hidden;
-    }
-    #tabs-bar {
-      display: flex;
-      overflow-x: auto;
-      background-color: var(--outline-color);
-      border-bottom: 1px solid var(--title-color);
-      padding: 0.5rem 0;
-      z-index: 10;
-    }
-    #tabs-bar button {
-      flex: 0 0 auto;
-      background: none;
-      border: none;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      color: var(--title-color);
-      font-weight: 700;
-      font-size: 1rem;
-      border-bottom: 3px solid transparent;
-      transition: border-color 0.3s;
-    }
-    #tabs-bar button.active {
-      border-color: #F472B6;
-    }
-    #tab-content-container {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 1rem 1.5rem;
-      background: var(--background-blur);
-      backdrop-filter: blur(6px);
-      border-radius: 10px;
-      margin: 0.5rem 1rem 1rem 1rem;
-    }
-    section[role="tabpanel"] { display: none; }
-    section[role="tabpanel"].active { display: block; }
-    /* Add your custom styles for each tab below... */
-    /* ...existing code... */
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ultimate Study Widget</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+
+<style>
+/* ======================== THEME VARIABLES ======================== */
+:root {
+    --bg-dark: #1a1a1a;
+    --bg-light: #fefefe;
+    --text-dark: #fcf1f6;
+    --text-light: #1a1a1a;
+    --title-dark: #ad1a72;
+    --title-light: #ad1a72;
+    --outline-dark: rgba(255, 255, 255, 0.12);
+    --outline-light: rgba(0, 0, 0, 0.12);
+    --input-bg-dark: #222;
+    --input-bg-light: #eee;
+}
+
+/* ======================== BASE STYLES ======================== */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+}
+body[data-theme='dark'] {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+}
+body[data-theme='light'] {
+    background: var(--bg-light);
+    color: var(--text-light);
+}
+h1, h2, h3 {
+    color: var(--title-dark);
+}
+
+/* ======================== NAV / TABS ======================== */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--outline-light);
+    overflow-x: auto;
+}
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.tab.active {
+    font-weight: bold;
+    border-bottom: 2px solid var(--title-dark);
+}
+.tab-content {
+    display: none;
+    padding: 15px;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* ======================== INPUTS / BUTTONS ======================== */
+input, textarea {
+    padding: 8px;
+    border: 1px solid var(--outline-light);
+    border-radius: 4px;
+    width: 100%;
+}
+button {
+    padding: 8px 12px;
+    background: var(--title-dark);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover {
+    opacity: 0.9;
+}
+
+/* ======================== EXTRA WIDGET STYLES ======================== */
+/* You can insert your full style.css contents here */
+</style>
 </head>
-<body>
-<div id="app" tabindex="0" aria-label="Ultimate Notion Widget">
-  <nav id="tabs-bar" role="tablist" aria-label="Widget Tabs">
-    <button role="tab" id="tab-todo" aria-selected="true" aria-controls="panel-todo" tabindex="0">📝 To-Do List</button>
-    <button role="tab" id="tab-timers" aria-selected="false" aria-controls="panel-timers" tabindex="-1">⏰ Timers</button>
-    <button role="tab" id="tab-pomodoro" aria-selected="false" aria-controls="panel-pomodoro" tabindex="-1">🎀 Pomodoro</button>
-    <button role="tab" id="tab-music" aria-selected="false" aria-controls="panel-music" tabindex="-1">🎵 Music</button>
-    <button role="tab" id="tab-ai" aria-selected="false" aria-controls="panel-ai" tabindex="-1">🤖 AI Chat</button>
-    <button role="tab" id="tab-games" aria-selected="false" aria-controls="panel-games" tabindex="-1">🎮 Games</button>
-    <button role="tab" id="tab-settings" aria-selected="false" aria-controls="panel-settings" tabindex="-1">⚙️ Settings</button>
-  </nav>
-  <div id="tab-content-container">
-    <!-- To-Do List -->
-    <section role="tabpanel" id="panel-todo" aria-labelledby="tab-todo" class="active">
-      <ul id="todo-list"></ul>
-      <div id="todo-input-container">
-        <button id="task-type-toggle" title="Toggle Task Type">❤️</button>
-        <input type="text" id="todo-input" placeholder="Add a task and press Enter..." autocomplete="off" />
-      </div>
-      <button id="clear-tasks-btn">Clear All Tasks</button>
-    </section>
-    <!-- Timers -->
-    <section role="tabpanel" id="panel-timers" aria-labelledby="tab-timers">
-      <div id="timers-container"></div>
-      <button id="add-timer-btn">+ Add Timer</button>
-      <button id="clear-timers-btn">Reset All Timers</button>
-    </section>
-    <!-- Pomodoro -->
-    <section role="tabpanel" id="panel-pomodoro" aria-labelledby="tab-pomodoro">
-      <div id="pomodoro-timer">
-        <h3>Pomodoro Timer</h3>
-        <div id="pomodoro-display">25:00</div>
-        <button id="pomodoro-start">Start</button>
-        <button id="pomodoro-pause">Pause</button>
-        <button id="pomodoro-reset">Reset</button>
-      </div>
-    </section>
-    <!-- Music -->
-    <section role="tabpanel" id="panel-music" aria-labelledby="tab-music">
-      <div id="music-now-playing">
-        <img class="cover-art" src="" alt="Cover Art" />
-        <div class="info">
-          <div class="title">No music playing</div>
-          <div class="duration">00:00</div>
-          <input type="range" id="music-progress" min="0" max="100" value="0" step="1" />
-        </div>
-      </div>
-      <div id="music-controls">
-        <button id="prev-song-btn">⏮️</button>
-        <button id="play-pause-btn">▶️</button>
-        <button id="next-song-btn">⏭️</button>
-        <button id="shuffle-btn">🔀</button>
-        <button id="repeat-btn">🔁</button>
-      </div>
-      <div id="music-library">
-        <ul id="music-list"></ul>
-      </div>
-      <div id="music-queue-container" class="hidden">
-        <h4>Up Next:</h4>
-        <ul id="music-queue-list"></ul>
-      </div>
-      <button id="music-upload-btn">+</button>
-      <input type="file" id="music-upload-file" accept="audio/*" />
-      <button id="music-upload-url-btn">Upload URL</button>
-      <input type="text" id="music-upload-url-input" placeholder="Enter audio URL here" style="display:none;" />
-    </section>
-    <!-- AI Chat -->
-    <section role="tabpanel" id="panel-ai" aria-labelledby="tab-ai">
-      <div id="ai-chat-container">
-        <div id="ai-messages"></div>
-        <div id="ai-input-container">
-          <input type="text" id="ai-input" placeholder="Ask me anything..." autocomplete="off" />
-          <button id="ai-send-btn" disabled>Send</button>
-        </div>
-      </div>
-    </section>
-    <!-- Games -->
-    <section role="tabpanel" id="panel-games" aria-labelledby="tab-games">
-      <div id="games-list">
-        <div class="game-card" data-game="memory">🧠 Memory</div>
-        <div class="game-card" data-game="snake">🐍 Snake</div>
-        <div class="game-card" data-game="tictactoe">❌ Tic Tac Toe</div>
-      </div>
-      <div id="game-container"></div>
-      <button id="game-back-btn" style="display:none;">Back</button>
-    </section>
-    <!-- Settings -->
-    <section role="tabpanel" id="panel-settings" aria-labelledby="tab-settings">
-      <div id="settings-panel">
-        <label for="title-color-picker">Title Color:</label>
-        <input type="color" id="title-color-picker" value="#AD1A72" />
-        <label for="text-color-picker">Default Text Color:</label>
-        <input type="color" id="text-color-picker" value="#AD1A72" />
-        <label for="outline-color-picker">Outline Block Color:</label>
-        <input type="color" id="outline-color-picker" value="#d692b4" />
-        <label for="background-upload">Upload Background Image:</label>
-        <input type="file" id="background-upload" accept="image/*" />
-        <label for="widget-width">Custom Widget Width (px):</label>
-        <input type="number" id="widget-width" min="300" max="1920" placeholder="e.g. 800" />
-        <label for="widget-height">Custom Widget Height (px):</label>
-        <input type="number" id="widget-height" min="300" max="1080" placeholder="e.g. 600" />
-        <label for="orientation-select">Orientation:</label>
-        <select id="orientation-select">
-          <option value="landscape" selected>Landscape</option>
-          <option value="portrait">Portrait</option>
-        </select>
-        <div style="margin-top:1rem;">
-          <label>Light / Dark Mode</label>
-          <input type="checkbox" id="dark-mode-toggle" />
-        </div>
-      </div>
-    </section>
-  </div>
+<body data-theme="light">
+
+<!-- ======================== NAVIGATION TABS ======================== -->
+<div class="tabs">
+    <div class="tab active" data-tab="settings">⚙ Settings</div>
+    <div class="tab" data-tab="todo">📝 To-Do List</div>
+    <div class="tab" data-tab="stopwatch">⏱ Stopwatch / Timers</div>
+    <div class="tab" data-tab="pomodoro">🍅 Pomodoro</div>
+    <div class="tab" data-tab="chat">💬 Chat AI</div>
+    <div class="tab" data-tab="games">🎮 Games</div>
+    <div class="tab" data-tab="music">🎵 Music</div>
 </div>
+
+<!-- ======================== SETTINGS TAB ======================== -->
+<div id="settings" class="tab-content active">
+    <h2>Settings</h2>
+    <button id="toggle-theme">Toggle Light/Dark Mode</button>
+</div>
+
+<!-- ======================== TO-DO LIST TAB ======================== -->
+<div id="todo" class="tab-content">
+    <h2>To-Do List</h2>
+    <input type="text" id="new-task" placeholder="Add new task..."/>
+    <button id="add-task">Add Task</button>
+    <ul id="task-list"></ul>
+</div>
+
+<!-- ======================== STOPWATCH / TIMERS TAB ======================== -->
+<div id="stopwatch" class="tab-content">
+    <h2>Stopwatch</h2>
+    <div id="stopwatch-display">00:00:00</div>
+    <button id="start-stopwatch">Start</button>
+    <button id="pause-stopwatch">Pause</button>
+    <button id="reset-stopwatch">Reset</button>
+</div>
+
+<!-- ======================== POMODORO TAB ======================== -->
+<div id="pomodoro" class="tab-content">
+    <h2>Pomodoro Timer</h2>
+    <div id="pomodoro-display">25:00</div>
+    <button id="start-pomodoro">Start</button>
+    <button id="pause-pomodoro">Pause</button>
+    <button id="reset-pomodoro">Reset</button>
+</div>
+
+<!-- ======================== CHAT AI TAB ======================== -->
+<div id="chat" class="tab-content">
+    <h2>Chat AI</h2>
+    <textarea id="chat-input" placeholder="Type your message..."></textarea>
+    <button id="send-chat">Send</button>
+    <div id="chat-output"></div>
+</div>
+
+<!-- ======================== GAMES TAB ======================== -->
+<div id="games" class="tab-content">
+    <h2>Games</h2>
+    <p>Game area placeholder.</p>
+</div>
+
+<!-- ======================== MUSIC TAB ======================== -->
+<div id="music" class="tab-content">
+    <h2>Music</h2>
+    <p>Music player placeholder.</p>
+</div>
+
 <script>
-(() => {
-  // Tab switching logic
-  const tabsBar = document.getElementById('tabs-bar');
-  const tabButtons = tabsBar.querySelectorAll('button[role="tab"]');
-  const tabPanels = document.querySelectorAll('section[role="tabpanel"]');
-  let activeTab = 'todo';
-
-  function switchTab(newTabId) {
-    activeTab = newTabId;
-    tabButtons.forEach(btn => {
-      const isActive = btn.id === `tab-${newTabId}`;
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive);
-      btn.tabIndex = isActive ? 0 : -1;
+/* ======================== TAB SWITCHING ======================== */
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(tab.dataset.tab).classList.add('active');
     });
-    tabPanels.forEach(panel => {
-      panel.classList.toggle('active', panel.id === `panel-${newTabId}`);
-    });
-  }
+});
 
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      switchTab(btn.id.replace('tab-', ''));
-    });
-  });
+/* ======================== THEME TOGGLE ======================== */
+const themeBtn = document.getElementById('toggle-theme');
+themeBtn.addEventListener('click', () => {
+    document.body.dataset.theme = document.body.dataset.theme === 'light' ? 'dark' : 'light';
+});
 
-  // Initial tab
-  switchTab('todo');
+/* ======================== TO-DO LIST ======================== */
+const taskInput = document.getElementById('new-task');
+const addTaskBtn = document.getElementById('add-task');
+const taskList = document.getElementById('task-list');
 
-  // ...existing code for each tab's features (To-Do, Timers, Pomodoro, Music, AI Chat, Games, Settings)...
-  // You can copy your previous logic for each tab here, as shown in your last file.
+addTaskBtn.addEventListener('click', () => {
+    if (taskInput.value.trim() === '') return;
+    const li = document.createElement('li');
+    li.textContent = taskInput.value;
+    taskList.appendChild(li);
+    taskInput.value = '';
+});
 
-})();
+/* ======================== STOPWATCH ======================== */
+let stopwatchInterval;
+let stopwatchSeconds = 0;
+function updateStopwatchDisplay() {
+    const hrs = String(Math.floor(stopwatchSeconds / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((stopwatchSeconds % 3600) / 60)).padStart(2, '0');
+    const secs = String(stopwatchSeconds % 60).padStart(2, '0');
+    document.getElementById('stopwatch-display').textContent = `${hrs}:${mins}:${secs}`;
+}
+document.getElementById('start-stopwatch').addEventListener('click', () => {
+    clearInterval(stopwatchInterval);
+    stopwatchInterval = setInterval(() => {
+        stopwatchSeconds++;
+        updateStopwatchDisplay();
+    }, 1000);
+});
+document.getElementById('pause-stopwatch').addEventListener('click', () => {
+    clearInterval(stopwatchInterval);
+});
+document.getElementById('reset-stopwatch').addEventListener('click', () => {
+    clearInterval(stopwatchInterval);
+    stopwatchSeconds = 0;
+    updateStopwatchDisplay();
+});
+
+/* ======================== POMODORO TIMER ======================== */
+let pomodoroInterval;
+let pomodoroSeconds = 25 * 60;
+function updatePomodoroDisplay() {
+    const mins = String(Math.floor(pomodoroSeconds / 60)).padStart(2, '0');
+    const secs = String(pomodoroSeconds % 60).padStart(2, '0');
+    document.getElementById('pomodoro-display').textContent = `${mins}:${secs}`;
+}
+document.getElementById('start-pomodoro').addEventListener('click', () => {
+    clearInterval(pomodoroInterval);
+    pomodoroInterval = setInterval(() => {
+        if (pomodoroSeconds > 0) {
+            pomodoroSeconds--;
+            updatePomodoroDisplay();
+        } else {
+            clearInterval(pomodoroInterval);
+            alert('Pomodoro complete!');
+        }
+    }, 1000);
+});
+document.getElementById('pause-pomodoro').addEventListener('click', () => {
+    clearInterval(pomodoroInterval);
+});
+document.getElementById('reset-pomodoro').addEventListener('click', () => {
+    clearInterval(pomodoroInterval);
+    pomodoroSeconds = 25 * 60;
+    updatePomodoroDisplay();
+});
+updatePomodoroDisplay();
+
+/* ======================== CHAT AI (placeholder) ======================== */
+document.getElementById('send-chat').addEventListener('click', () => {
+    const input = document.getElementById('chat-input');
+    const output = document.getElementById('chat-output');
+    if (input.value.trim()) {
+        const p = document.createElement('p');
+        p.textContent = `You: ${input.value}`;
+        output.appendChild(p);
+        input.value = '';
+    }
+});
+
+/* ======================== GAMES & MUSIC ======================== */
+/* Placeholder code — we can expand later */
 </script>
 </body>
 </html>
