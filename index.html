@@ -1,469 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Ultimate Notion Widget</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --main-color: #AD1A72;
-      --bg-color: #fff;
-      --tab-bg: rgba(255,255,255,0.7);
-      --tab-active: var(--main-color);
-      --tab-radius: 16px;
-      --shadow: 0 2px 8px rgba(173,26,114,0.08);
-    }
-    body {
-      background: var(--bg-color);
-      color: var(--main-color);
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    #tab-bar {
-      display: flex;
-      overflow-x: auto;
-      background: var(--tab-bg);
-      border-radius: var(--tab-radius);
-      box-shadow: var(--shadow);
-      margin: 16px;
-      padding: 8px 0;
-      gap: 8px;
-    }
-    .tab {
-      flex: 0 0 auto;
-      padding: 8px 20px;
-      border-radius: var(--tab-radius);
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--main-color);
-      font-size: 1.1em;
-      transition: background 0.2s;
-      outline: none;
-    }
-    .tab.active {
-      background: var(--tab-active);
-      color: #fff;
-      font-weight: bold;
-    }
-    #widget-content {
-      margin: 24px;
-      padding: 24px;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.9);
-      box-shadow: var(--shadow);
-      min-height: 300px;
-      transition: box-shadow 0.3s;
-    }
-    .bubble-input {
-      background: rgba(255,255,255,0.6);
-      border: 1px solid var(--main-color);
-      border-radius: 18px;
-      padding: 10px 16px;
-      margin: 8px 0;
-      box-shadow: 0 1px 6px rgba(173,26,114,0.07);
-      font-size: 1em;
-      color: var(--main-color);
-      outline: none;
-      width: 100%;
-    }
-    .todo-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .todo-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-      padding: 8px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.7);
-      box-shadow: var(--shadow);
-      position: relative;
-      transition: box-shadow 0.2s;
-    }
-    .todo-checkbox {
-      margin-right: 12px;
-      accent-color: var(--main-color);
-    }
-    .favorite-icon, .star-icon {
-      cursor: pointer;
-      font-size: 1.3em;
-      margin-right: 8px;
-      user-select: none;
-      transition: color 0.2s;
-    }
-    .todo-item button,
-    .todo-item input[type="date"] {
-      opacity: 0;
-      transition: opacity 0.2s;
-      position: relative;
-      z-index: 2;
-    }
-    .todo-item:hover button,
-    .todo-item:hover input[type="date"] {
-      opacity: 1;
-    }
-    .todo-item input[type="date"] {
-      width: auto;
-      margin-left: 8px;
-      background: rgba(255,255,255,0.8);
-      border: 1px solid var(--main-color);
-      border-radius: 8px;
-      color: var(--main-color);
-      font-size: 0.95em;
-      padding: 2px 6px;
-      cursor: pointer;
-    }
-    .todo-item ul {
-      margin-left: 32px;
-      list-style: none;
-      padding-left: 0;
-    }
-    .todo-item .todo-item {
-      background: rgba(255,255,255,0.5);
-      box-shadow: none;
-      font-size: 0.97em;
-    }
-    .timer-display {
-      font-size: 2em;
-      margin-bottom: 12px;
-    }
-    .music-player {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .soundcloud-embed {
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-    .settings-group {
-      margin-bottom: 18px;
-    }
-    .settings-label {
-      font-weight: bold;
-      margin-bottom: 6px;
-      display: block;
-    }
-    .color-input {
-      border: none;
-      border-radius: 8px;
-      padding: 4px;
-      margin-left: 8px;
-      outline: none;
-    }
-    @media (max-width: 600px) {
-      #widget-content {
-        margin: 8px;
-        padding: 12px;
-      }
-      #tab-bar {
-        margin: 8px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Widget</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="assets/icons/fontawesome.js" crossorigin="anonymous"></script>
 </head>
-<body>
-  <div id="tab-bar">
-    <button class="tab active" data-tab="todo">📝 To-Do</button>
-    <button class="tab" data-tab="timer">⏲️ Timer</button>
-    <button class="tab" data-tab="music">🎵 Music</button>
-    <button class="tab" data-tab="ai">🤖 AI Chat</button>
-    <button class="tab" data-tab="settings">⚙️ Settings</button>
-  </div>
-  <div id="widget-content">
-    <!-- Content will be injected here -->
-  </div>
-  <script>
-    // Tab switching logic
-    const tabs = document.querySelectorAll('.tab');
-    const widgetContent = document.getElementById('widget-content');
-    let currentTab = 'todo';
+<body data-theme="light">
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentTab = tab.dataset.tab;
-        renderTab(currentTab);
-      });
-    });
+<header>
+    <h1>🎀 Notion Timer & To-Do Widget 🎀</h1>
+    <button id="theme-toggle" aria-label="Toggle light/dark theme" title="Toggle theme" tabindex="0">
+        <i class="fas fa-sun"></i>
+    </button>
+</header>
 
-    // To-Do List
-    let todos = [];
+<div id="tabs" role="tablist" aria-label="Widget Sections Tabs">
+    <button role="tab" aria-selected="true" id="tab-countdown" aria-controls="countdown-section" class="active">Countdowns</button>
+    <button role="tab" aria-selected="false" id="tab-timer" aria-controls="timer-section">Timers</button>
+    <button role="tab" aria-selected="false" id="tab-stopwatch" aria-controls="stopwatch-section">Stopwatch</button>
+    <button role="tab" aria-selected="false" id="tab-todo" aria-controls="todo-section">To-Do List</button>
+    <button role="tab" aria-selected="false" id="tab-settings" aria-controls="settings-section">Settings</button>
+</div>
 
-    function renderTodo() {
-      widgetContent.innerHTML = `
+<main>
+    <section id="countdown-section" role="tabpanel" aria-labelledby="tab-countdown">
+        <h2>Countdowns</h2>
+        <input type="text" id="countdown-title" placeholder="Countdown Title">
+        <input type="datetime-local" id="countdown-date">
+        <button id="add-countdown">Add Countdown</button>
+        <div id="countdown-list"></div>
+    </section>
+
+    <section id="timer-section" role="tabpanel" aria-labelledby="tab-timer">
+        <h2>Timers</h2>
+        <input type="text" id="timer-title" placeholder="Timer Title">
+        <input type="number" id="timer-duration" placeholder="Duration (seconds)">
+        <button id="add-timer">Add Timer</button>
+        <div id="timer-list"></div>
+    </section>
+
+    <section id="stopwatch-section" role="tabpanel" aria-labelledby="tab-stopwatch">
+        <h2>Stopwatch</h2>
+        <button id="start-stopwatch">Start</button>
+        <button id="stop-stopwatch">Stop</button>
+        <button id="reset-stopwatch">Reset</button>
+        <div id="stopwatch-display">00:00:00</div>
+        <button id="add-punch">Add Punch</button>
+        <div id="punch-list"></div>
+    </section>
+
+    <section id="todo-section" role="tabpanel" aria-labelledby="tab-todo">
         <h2>To-Do List</h2>
-        <input class="bubble-input" id="todo-input" placeholder="Type and press Enter to add..." />
-        <button class="bubble-input" id="todo-clear" style="float:right;margin-top:-40px;">Clear All</button>
-        <ul class="todo-list" id="todo-list"></ul>
-      `;
-      const input = document.getElementById('todo-input');
-      const list = document.getElementById('todo-list');
-      const clearBtn = document.getElementById('todo-clear');
+        <input type="text" id="todo-input" placeholder="Add a new task">
+        <button id="add-todo">Add Task</button>
+        <div id="todo-list"></div>
+    </section>
 
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && input.value.trim()) {
-          todos.push({
-            text: input.value.trim(),
-            done: false,
-            due: '',
-            subtasks: []
-          });
-          input.value = '';
-          renderTodo();
-        }
-        // Add subtask with Tab
-        if (e.key === 'Tab' && input.value.trim()) {
-          e.preventDefault();
-          if (todos.length > 0) {
-            todos[todos.length - 1].subtasks.push({
-              text: input.value.trim(),
-              done: false
-            });
-            input.value = '';
-            renderTodo();
-          }
-        }
-      });
-
-      clearBtn.onclick = () => {
-        todos = [];
-        renderTodo();
-      };
-
-      todos.forEach((todo, idx) => {
-        const li = document.createElement('li');
-        li.className = 'todo-item';
-        li.draggable = true; // Only main tasks are draggable
-
-        li.innerHTML = `
-          <span class="favorite-icon" style="margin-right:8px;">
-            ${todo.done ? '♥︎' : '♡'}
-          </span>
-          <span class="editable" style="flex:1;${todo.done ? 'text-decoration:line-through;' : ''}">${todo.text}</span>
-          <input type="date" class="bubble-input" style="width:auto;margin-left:8px;" value="${todo.due}" />
-          <button style="background:none;border:none;color:var(--main-color);font-size:1.2em;cursor:pointer;" title="Delete">&times;</button>
-        `;
-
-        // Heart icon toggles completion
-        li.querySelector('.favorite-icon').addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          todos[idx].done = !todos[idx].done;
-          renderTodo();
-        });
-
-        // Inline editing
-        const editable = li.querySelector('.editable');
-        editable.addEventListener('dblclick', (ev) => {
-          ev.stopPropagation();
-          const editInput = document.createElement('input');
-          editInput.value = todo.text;
-          editInput.className = 'bubble-input';
-          editInput.onkeydown = ev2 => {
-            if (ev2.key === 'Enter') {
-              todos[idx].text = editInput.value;
-              renderTodo();
-            }
-          };
-          editable.replaceWith(editInput);
-          editInput.focus();
-        });
-
-        // Due date
-        li.querySelector('input[type="date"]').addEventListener('change', e => {
-          todos[idx].due = e.target.value;
-        });
-
-        // Delete (invisible until hover)
-        li.querySelector('button').addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          todos.splice(idx, 1);
-          renderTodo();
-        });
-
-        // Drag & drop (main tasks only)
-        li.addEventListener('dragstart', e => {
-          e.stopPropagation();
-          e.dataTransfer.setData('text/plain', idx);
-        });
-        li.addEventListener('dragover', e => {
-          e.preventDefault();
-          e.stopPropagation();
-        });
-        li.addEventListener('drop', e => {
-          e.stopPropagation();
-          const from = Number(e.dataTransfer.getData('text/plain'));
-          const to = idx;
-          if (from !== to) {
-            const moved = todos.splice(from, 1)[0];
-            todos.splice(to, 0, moved);
-            renderTodo();
-          }
-        });
-
-        // Subtasks
-        if (todo.subtasks && todo.subtasks.length) {
-          const subList = document.createElement('ul');
-          subList.style.marginLeft = '32px';
-          subList.style.listStyle = 'none';
-          todo.subtasks.forEach((sub, subIdx) => {
-            const subLi = document.createElement('li');
-            subLi.className = 'todo-item';
-            subLi.style.background = 'rgba(255,255,255,0.5)';
-            subLi.innerHTML = `
-              <span class="star-icon" style="margin-right:8px;">
-                ${sub.done ? '★' : '☆'}
-              </span>
-              <span style="flex:1;${sub.done ? 'text-decoration:line-through;' : ''}">${sub.text}</span>
-              <button style="background:none;border:none;color:var(--main-color);font-size:1em;cursor:pointer;" title="Delete">&times;</button>
-            `;
-            // Star icon toggles completion
-            subLi.querySelector('.star-icon').addEventListener('click', (ev) => {
-              ev.stopPropagation();
-              todo.subtasks[subIdx].done = !todo.subtasks[subIdx].done;
-              renderTodo();
-            });
-            // Delete subtask
-            subLi.querySelector('button').addEventListener('click', (ev) => {
-              ev.stopPropagation();
-              todo.subtasks.splice(subIdx, 1);
-              renderTodo();
-            });
-            subList.appendChild(subLi);
-          });
-          li.appendChild(subList);
-        }
-
-        list.appendChild(li);
-      });
-    }
-
-    // Timer
-    let timerInterval = null;
-    let timerSeconds = 0;
-
-    function renderTimer() {
-      widgetContent.innerHTML = `
-        <h2>Timer</h2>
-        <div class="timer-display" id="timer-display">00:00</div>
-        <input class="bubble-input" id="timer-input" type="number" min="1" placeholder="Minutes..." />
-        <button class="bubble-input" id="timer-start">Start</button>
-        <button class="bubble-input" id="timer-reset">Reset</button>
-      `;
-      const display = document.getElementById('timer-display');
-      const input = document.getElementById('timer-input');
-      document.getElementById('timer-start').onclick = () => {
-        timerSeconds = parseInt(input.value) * 60 || 0;
-        if (timerSeconds > 0) {
-          clearInterval(timerInterval);
-          timerInterval = setInterval(() => {
-            if (timerSeconds > 0) {
-              timerSeconds--;
-              display.textContent = formatTime(timerSeconds);
-            } else {
-              clearInterval(timerInterval);
-              display.textContent = "Time's up!";
-            }
-          }, 1000);
-        }
-      };
-      document.getElementById('timer-reset').onclick = () => {
-        clearInterval(timerInterval);
-        timerSeconds = 0;
-        display.textContent = "00:00";
-      };
-    }
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60).toString().padStart(2, '0');
-      const s = (sec % 60).toString().padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    // Music Player (SoundCloud Embed)
-    function renderMusic() {
-      widgetContent.innerHTML = `
-        <h2>Music Player</h2>
-        <div class="music-player">
-          <input class="bubble-input" id="sc-url" placeholder="Paste SoundCloud playlist URL..." />
-          <button class="bubble-input" id="sc-embed">Embed</button>
-          <div class="soundcloud-embed" id="sc-player"></div>
-        </div>
-      `;
-      document.getElementById('sc-embed').onclick = () => {
-        const url = document.getElementById('sc-url').value.trim();
-        if (url) {
-          // SoundCloud embed code
-          document.getElementById('sc-player').innerHTML = `
-            <iframe width="100%" height="166" scrolling="no" frameborder="no"
-              allow="autoplay"
-              src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23AD1A72">
-            </iframe>
-          `;
-        }
-      };
-    }
-
-    // AI Chat Placeholder
-    function renderAI() {
-      widgetContent.innerHTML = `
-        <h2>🤖 AI Chat</h2>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span style="font-size:2em;">🤖</span>
-          <input class="bubble-input" id="ai-input" placeholder="Type your message..." />
-        </div>
-        <div id="ai-chat-log" style="margin-top:18px;"></div>
-      `;
-      const input = document.getElementById('ai-input');
-      const log = document.getElementById('ai-chat-log');
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && input.value.trim()) {
-          const msg = document.createElement('div');
-          msg.textContent = "You: " + input.value;
-          log.appendChild(msg);
-          input.value = '';
-          // Placeholder: Add API call here for real AI response
-          setTimeout(() => {
-            const aiMsg = document.createElement('div');
-            aiMsg.textContent = "🤖: (AI response here)";
-            log.appendChild(aiMsg);
-          }, 700);
-        }
-      });
-    }
-
-    // Settings
-    function renderSettings() {
-      widgetContent.innerHTML = `
+    <section id="settings-section" role="tabpanel" aria-labelledby="tab-settings">
         <h2>Settings</h2>
-        <div class="settings-group">
-          <label class="settings-label">Main Color:</label>
-          <input type="color" class="color-input" id="main-color-picker" value="#AD1A72" />
-        </div>
-        <div class="settings-group">
-          <label class="settings-label">Background Color:</label>
-          <input type="color" class="color-input" id="bg-color-picker" value="#ffffff" />
-        </div>
-      `;
-      document.getElementById('main-color-picker').oninput = e => {
-        document.documentElement.style.setProperty('--main-color', e.target.value);
-      };
-      document.getElementById('bg-color-picker').oninput = e => {
-        document.documentElement.style.setProperty('--bg-color', e.target.value);
-      };
-    }
+        <label for="bg-upload">Background Image:</label>
+        <input type="file" id="bg-upload" accept="image/*">
+        <label for="text-color">Text Color:</label>
+        <input type="color" id="text-color" value="#FCF1F6">
+        <label for="title-color">Title Color:</label>
+        <input type="color" id="title-color" value="#AD1A72">
+        <label for="number-color">Number Color:</label>
+        <input type="color" id="number-color" value="#FCF1F6">
+    </section>
+</main>
 
-    // Tab rendering
-    function renderTab(tab) {
-      if (tab === 'todo') renderTodo();
-      else if (tab === 'timer') renderTimer();
-      else if (tab === 'music') renderMusic();
-      else if (tab === 'ai') renderAI();
-      else if (tab
+<audio id="alarm-sound" preload="auto" src="https://cdn.pixabay.com/download/audio/2021/09/27/audio_f1b9b2.mp3"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
