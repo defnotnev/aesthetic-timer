@@ -1,256 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Ultimate Study Widget</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
-
-<style>
-/* ======================== THEME VARIABLES ======================== */
-:root {
-    --bg-dark: #1a1a1a;
-    --bg-light: #fefefe;
-    --text-dark: #fcf1f6;
-    --text-light: #1a1a1a;
-    --title-dark: #ad1a72;
-    --title-light: #ad1a72;
-    --outline-dark: rgba(255, 255, 255, 0.12);
-    --outline-light: rgba(0, 0, 0, 0.12);
-    --input-bg-dark: #222;
-    --input-bg-light: #eee;
-}
-
-/* ======================== BASE STYLES ======================== */
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    user-select: none;
-}
-body[data-theme='dark'] {
-    background: var(--bg-dark);
-    color: var(--text-dark);
-}
-body[data-theme='light'] {
-    background: var(--bg-light);
-    color: var(--text-light);
-}
-h1, h2, h3 {
-    color: var(--title-dark);
-}
-
-/* ======================== NAV / TABS ======================== */
-.tabs {
-    display: flex;
-    border-bottom: 1px solid var(--outline-light);
-    overflow-x: auto;
-}
-.tab {
-    padding: 10px 20px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-.tab.active {
-    font-weight: bold;
-    border-bottom: 2px solid var(--title-dark);
-}
-.tab-content {
-    display: none;
-    padding: 15px;
-}
-.tab-content.active {
-    display: block;
-}
-
-/* ======================== INPUTS / BUTTONS ======================== */
-input, textarea {
-    padding: 8px;
-    border: 1px solid var(--outline-light);
-    border-radius: 4px;
-    width: 100%;
-}
-button {
-    padding: 8px 12px;
-    background: var(--title-dark);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:hover {
-    opacity: 0.9;
-}
-
-/* ======================== EXTRA WIDGET STYLES ======================== */
-/* You can insert your full style.css contents here */
-</style>
-</head>
-<body data-theme="light">
-
-<!-- ======================== NAVIGATION TABS ======================== -->
-<div class="tabs">
-    <div class="tab active" data-tab="settings">⚙ Settings</div>
-    <div class="tab" data-tab="todo">📝 To-Do List</div>
-    <div class="tab" data-tab="stopwatch">⏱ Stopwatch / Timers</div>
-    <div class="tab" data-tab="pomodoro">🍅 Pomodoro</div>
-    <div class="tab" data-tab="chat">💬 Chat AI</div>
-    <div class="tab" data-tab="games">🎮 Games</div>
-    <div class="tab" data-tab="music">🎵 Music</div>
-</div>
-
-<!-- ======================== SETTINGS TAB ======================== -->
-<div id="settings" class="tab-content active">
-    <h2>Settings</h2>
-    <button id="toggle-theme">Toggle Light/Dark Mode</button>
-</div>
-
-<!-- ======================== TO-DO LIST TAB ======================== -->
-<div id="todo" class="tab-content">
-    <h2>To-Do List</h2>
-    <input type="text" id="new-task" placeholder="Add new task..."/>
-    <button id="add-task">Add Task</button>
-    <ul id="task-list"></ul>
-</div>
-
-<!-- ======================== STOPWATCH / TIMERS TAB ======================== -->
-<div id="stopwatch" class="tab-content">
-    <h2>Stopwatch</h2>
-    <div id="stopwatch-display">00:00:00</div>
-    <button id="start-stopwatch">Start</button>
-    <button id="pause-stopwatch">Pause</button>
-    <button id="reset-stopwatch">Reset</button>
-</div>
-
-<!-- ======================== POMODORO TAB ======================== -->
-<div id="pomodoro" class="tab-content">
-    <h2>Pomodoro Timer</h2>
-    <div id="pomodoro-display">25:00</div>
-    <button id="start-pomodoro">Start</button>
-    <button id="pause-pomodoro">Pause</button>
-    <button id="reset-pomodoro">Reset</button>
-</div>
-
-<!-- ======================== CHAT AI TAB ======================== -->
-<div id="chat" class="tab-content">
-    <h2>Chat AI</h2>
-    <textarea id="chat-input" placeholder="Type your message..."></textarea>
-    <button id="send-chat">Send</button>
-    <div id="chat-output"></div>
-</div>
-
-<!-- ======================== GAMES TAB ======================== -->
-<div id="games" class="tab-content">
-    <h2>Games</h2>
-    <p>Game area placeholder.</p>
-</div>
-
-<!-- ======================== MUSIC TAB ======================== -->
-<div id="music" class="tab-content">
-    <h2>Music</h2>
-    <p>Music player placeholder.</p>
-</div>
-
-<script>
-/* ======================== TAB SWITCHING ======================== */
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(tab.dataset.tab).classList.add('active');
-    });
-});
-
-/* ======================== THEME TOGGLE ======================== */
-const themeBtn = document.getElementById('toggle-theme');
-themeBtn.addEventListener('click', () => {
-    document.body.dataset.theme = document.body.dataset.theme === 'light' ? 'dark' : 'light';
-});
-
-/* ======================== TO-DO LIST ======================== */
-const taskInput = document.getElementById('new-task');
-const addTaskBtn = document.getElementById('add-task');
-const taskList = document.getElementById('task-list');
-
-addTaskBtn.addEventListener('click', () => {
-    if (taskInput.value.trim() === '') return;
-    const li = document.createElement('li');
-    li.textContent = taskInput.value;
-    taskList.appendChild(li);
-    taskInput.value = '';
-});
-
-/* ======================== STOPWATCH ======================== */
-let stopwatchInterval;
-let stopwatchSeconds = 0;
-function updateStopwatchDisplay() {
-    const hrs = String(Math.floor(stopwatchSeconds / 3600)).padStart(2, '0');
-    const mins = String(Math.floor((stopwatchSeconds % 3600) / 60)).padStart(2, '0');
-    const secs = String(stopwatchSeconds % 60).padStart(2, '0');
-    document.getElementById('stopwatch-display').textContent = `${hrs}:${mins}:${secs}`;
-}
-document.getElementById('start-stopwatch').addEventListener('click', () => {
-    clearInterval(stopwatchInterval);
-    stopwatchInterval = setInterval(() => {
-        stopwatchSeconds++;
-        updateStopwatchDisplay();
-    }, 1000);
-});
-document.getElementById('pause-stopwatch').addEventListener('click', () => {
-    clearInterval(stopwatchInterval);
-});
-document.getElementById('reset-stopwatch').addEventListener('click', () => {
-    clearInterval(stopwatchInterval);
-    stopwatchSeconds = 0;
-    updateStopwatchDisplay();
-});
-
-/* ======================== POMODORO TIMER ======================== */
-let pomodoroInterval;
-let pomodoroSeconds = 25 * 60;
-function updatePomodoroDisplay() {
-    const mins = String(Math.floor(pomodoroSeconds / 60)).padStart(2, '0');
-    const secs = String(pomodoroSeconds % 60).padStart(2, '0');
-    document.getElementById('pomodoro-display').textContent = `${mins}:${secs}`;
-}
-document.getElementById('start-pomodoro').addEventListener('click', () => {
-    clearInterval(pomodoroInterval);
-    pomodoroInterval = setInterval(() => {
-        if (pomodoroSeconds > 0) {
-            pomodoroSeconds--;
-            updatePomodoroDisplay();
-        } else {
-            clearInterval(pomodoroInterval);
-            alert('Pomodoro complete!');
-        }
-    }, 1000);
-});
-document.getElementById('pause-pomodoro').addEventListener('click', () => {
-    clearInterval(pomodoroInterval);
-});
-document.getElementById('reset-pomodoro').addEventListener('click', () => {
-    clearInterval(pomodoroInterval);
-    pomodoroSeconds = 25 * 60;
-    updatePomodoroDisplay();
-});
-updatePomodoroDisplay();
-
-/* ======================== CHAT AI (placeholder) ======================== */
-document.getElementById('send-chat').addEventListener('click', () => {
-    const input = document.getElementById('chat-input');
-    const output = document.getElementById('chat-output');
-    if (input.value.trim()) {
-        const p = document.createElement('p');
-        p.textContent = `You: ${input.value}`;
-        output.appendChild(p);
-        input.value = '';
+  <meta charset="UTF-8">
+  <title>Ultimate Notion Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --main-color: #AD1A72;
+      --bg-color: #fff;
+      --tab-bg: rgba(255,255,255,0.7);
+      --tab-active: var(--main-color);
+      --tab-radius: 16px;
+      --shadow: 0 2px 8px rgba(173,26,114,0.08);
     }
-});
+    body {
+      background: var(--bg-color);
+      color: var(--main-color);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #tab-bar {
+      display: flex;
+      overflow-x: auto;
+      background: var(--tab-bg);
+      border-radius: var(--tab-radius);
+      box-shadow: var(--shadow);
+      margin: 16px;
+      padding: 8px 0;
+      gap: 8px;
+    }
+    .tab {
+      flex: 0 0 auto;
+      padding: 8px 20px;
+      border-radius: var(--tab-radius);
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--main-color);
+      font-size: 1.1em;
+      transition: background 0.2s;
+      outline: none;
+    }
+    .tab.active {
+      background: var(--tab-active);
+      color: #fff;
+      font-weight: bold;
+    }
+    #widget-content {
+      margin: 24px;
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: var(--shadow);
+      min-height: 300px;
+      transition: box-shadow 0.3s;
+    }
+    .bubble-input {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid var(--main-color);
+      border-radius: 18px;
+      padding: 10px 16px;
+      margin: 8px 0;
+      box-shadow: 0 1px 6px rgba(173,26,114,0.07);
+      font-size: 1em;
+      color: var(--main-color);
+      outline: none;
+      width: 100%;
+    }
+    .todo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.7);
+      box-shadow: var(--shadow);
+    }
+    .todo-checkbox {
+      margin-right: 12px;
+      accent-color: var(--main-color);
+    }
+    .timer-display {
+      font-size: 2em;
+      margin-bottom: 12px;
+    }
+    .music-player {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .soundcloud-embed {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .settings-group {
+      margin-bottom: 18px;
+    }
+    .settings-label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .color-input {
+      border: none;
+      border-radius: 8px;
+      padding: 4px;
+      margin-left: 8px;
+      outline: none;
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      #widget-content {
+        margin: 8px;
+        padding: 12px;
+      }
+      #tab-bar {
+        margin: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="tab-bar">
+    <button class="tab active" data-tab="todo">📝 To-Do</button>
+    <button class="tab" data-tab="timer">⏲️ Timer</button>
+    <button class="tab" data-tab="music">🎵 Music</button>
+    <button class="tab" data-tab="ai">🤖 AI Chat</button>
+    <button class="tab" data-tab="settings">⚙️ Settings</button>
+  </div>
+  <div id="widget-content">
+    <!-- Content will be injected here -->
+  </div>
+  <script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab');
+    const widgetContent = document.getElementById('widget-content');
+    let currentTab = 'todo';
 
-/* ======================== GAMES & MUSIC ======================== */
-/* Placeholder code — we can expand later */
-</script>
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTab = tab.dataset.tab;
+        renderTab(currentTab);
+      });
+    });
+
+    // To-Do List
+    let todos = [];
+
+    function renderTodo() {
+      widgetContent.innerHTML = `
+        <h2>To-Do List</h2>
+        <input class="bubble-input" id="todo-input" placeholder="Type and press Enter to add..." />
+        <ul class="todo-list" id="todo-list"></ul>
+      `;
+      const input = document.getElementById('todo-input');
+      const list = document.getElementById('todo-list');
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          todos.push({ text: input.value.trim(), done: false });
+          input.value = '';
+          renderTodo();
+        }
+      });
+      todos.forEach((todo, idx) => {
+        const li = document.createElement('li');
+        li.className = 'todo-item';
+        li.innerHTML = `
+          <input type="checkbox" class="todo-checkbox" ${todo.done ? 'checked' : ''} />
+          <span style="flex:1;${todo.done ? 'text-decoration:line-through;' : ''}">${todo.text}</span>
+          <button style="background:none;border:none;color:var(--main-color);font-size:1.2em;cursor:pointer;" title="Delete">&times;</button>
+        `;
+        li.querySelector('.todo-checkbox').addEventListener('change', () => {
+          todos[idx].done = !todos[idx].done;
+          renderTodo();
+        });
+        li.querySelector('button').addEventListener('click', () => {
+          todos.splice(idx, 1);
+          renderTodo();
+        });
+        list.appendChild(li);
+      });
+    }
+
+    // Timer
+    let timerInterval = null;
+    let timerSeconds = 0;
+
+    function renderTimer() {
+      widgetContent.innerHTML = `
+        <h2>Timer</h2>
+        <div class="timer-display" id="timer-display">00:00</div>
+        <input class="bubble-input" id="timer-input" type="number" min="1" placeholder="Minutes..." />
+        <button class="bubble-input" id="timer-start">Start</button>
+        <button class="bubble-input" id="timer-reset">Reset</button>
+      `;
+      const display = document.getElementById('timer-display');
+      const input = document.getElementById('timer-input');
+      document.getElementById('timer-start').onclick = () => {
+        timerSeconds = parseInt(input.value) * 60 || 0;
+        if (timerSeconds > 0) {
+          clearInterval(timerInterval);
+          timerInterval = setInterval(() => {
+            if (timerSeconds > 0) {
+              timerSeconds--;
+              display.textContent = formatTime(timerSeconds);
+            } else {
+              clearInterval(timerInterval);
+              display.textContent = "Time's up!";
+            }
+          }, 1000);
+        }
+      };
+      document.getElementById('timer-reset').onclick = () => {
+        clearInterval(timerInterval);
+        timerSeconds = 0;
+        display.textContent = "00:00";
+      };
+    }
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    // Music Player (SoundCloud Embed)
+    function renderMusic() {
+      widgetContent.innerHTML = `
+        <h2>Music Player</h2>
+        <div class="music-player">
+          <input class="bubble-input" id="sc-url" placeholder="Paste SoundCloud playlist URL..." />
+          <button class="bubble-input" id="sc-embed">Embed</button>
+          <div class="soundcloud-embed" id="sc-player"></div>
+        </div>
+      `;
+      document.getElementById('sc-embed').onclick = () => {
+        const url = document.getElementById('sc-url').value.trim();
+        if (url) {
+          // SoundCloud embed code
+          document.getElementById('sc-player').innerHTML = `
+            <iframe width="100%" height="166" scrolling="no" frameborder="no"
+              allow="autoplay"
+              src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23AD1A72">
+            </iframe>
+          `;
+        }
+      };
+    }
+
+    // AI Chat Placeholder
+    function renderAI() {
+      widgetContent.innerHTML = `
+        <h2>🤖 AI Chat</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:2em;">🤖</span>
+          <input class="bubble-input" id="ai-input" placeholder="Type your message..." />
+        </div>
+        <div id="ai-chat-log" style="margin-top:18px;"></div>
+      `;
+      const input = document.getElementById('ai-input');
+      const log = document.getElementById('ai-chat-log');
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          const msg = document.createElement('div');
+          msg.textContent = "You: " + input.value;
+          log.appendChild(msg);
+          input.value = '';
+          // Placeholder: Add API call here for real AI response
+          setTimeout(() => {
+            const aiMsg = document.createElement('div');
+            aiMsg.textContent = "🤖: (AI response here)";
+            log.appendChild(aiMsg);
+          }, 700);
+        }
+      });
+    }
+
+    // Settings
+    function renderSettings() {
+      widgetContent.innerHTML = `
+        <h2>Settings</h2>
+        <div class="settings-group">
+          <label class="settings-label">Main Color:</label>
+          <input type="color" class="color-input" id="main-color-picker" value="#AD1A72" />
+        </div>
+        <div class="settings-group">
+          <label class="settings-label">Background Color:</label>
+          <input type="color" class="color-input" id="bg-color-picker" value="#ffffff" />
+        </div>
+      `;
+      document.getElementById('main-color-picker').oninput = e => {
+        document.documentElement.style.setProperty('--main-color', e.target.value);
+      };
+      document.getElementById('bg-color-picker').oninput = e => {
+        document.documentElement.style.setProperty('--bg-color', e.target.value);
+      };
+    }
+
+    // Tab rendering
+    function renderTab(tab) {
+      if (tab === 'todo') renderTodo();
+      else if (tab === 'timer') renderTimer();
+      else if (tab === 'music') renderMusic();
+      else if (tab === 'ai') renderAI();
+      else if (tab === 'settings') renderSettings();
+    }
+    renderTab(currentTab);
+  </script>
 </body>
 </html>
